@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HabitOS 98</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#b4c8dc;--win:#dce8f4;--ink:#1a2a3a;--muted:#4a6a84;
+  --border:#3a6080;--idk:#6a90b0;--ilt:#eef6ff;
+  --t1:#3a7ab8;--t2:#1a4a88;--u1:#6080a0;--u2:#405870;
+  --bhi:#e8f4ff;--bdk:#2a4860;--blo:#8ab0cc;
+  --acc:#c84830;--acc2:#e08830;--grn:#2a9848;--pur:#6840b8;
+}
+body{
+  font-family:'Nunito',sans-serif;background:var(--bg);
+  min-height:100vh;overflow:hidden;user-select:none;color:var(--ink);
+  background-image:radial-gradient(circle,rgba(255,255,255,.2) 0%,transparent 60%),
+    radial-gradient(rgba(80,120,160,.13) 1px,transparent 1px);
+  background-size:100% 100%,28px 28px;
+}
+/* WINDOWS */
+.win{position:absolute;background:var(--win);border:2px solid var(--bhi);
+  border-right-color:var(--bdk);border-bottom-color:var(--bdk);
+  border-radius:4px;box-shadow:2px 2px 0 #1a3050;z-index:10;min-width:140px;}
+.win.focused{z-index:100;box-shadow:3px 3px 0 #0a2040;}
+.wtitle{height:22px;display:flex;align-items:center;gap:4px;padding:0 4px;
+  background:linear-gradient(90deg,var(--u1),var(--u2));border-radius:2px 2px 0 0;cursor:move;}
+.win.focused .wtitle{background:linear-gradient(90deg,var(--t1),var(--t2));}
+.wtitle-ico{width:14px;height:14px;flex-shrink:0;}
+.wtitle-txt{flex:1;font-family:'Press Start 2P';font-size:.37rem;color:#fff;
+  letter-spacing:.05em;text-shadow:1px 1px 0 rgba(0,0,0,.5);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wbtns{display:flex;gap:2px;}
+.wbtn{width:14px;height:12px;border:1px solid rgba(255,255,255,.7);
+  border-right-color:rgba(0,0,0,.4);border-bottom-color:rgba(0,0,0,.4);
+  background:linear-gradient(180deg,#d8eaf8,#98b8cc);border-radius:1px;
+  cursor:pointer;font-size:.45rem;font-weight:900;
+  display:flex;align-items:center;justify-content:center;color:#1a3040;}
+.wbtn:hover{background:linear-gradient(180deg,#f8c080,#d08030);}
+.wbtn.cls:hover{background:linear-gradient(180deg,#f86060,#b01818);color:#fff;}
+.wbody{padding:8px;}
+.inset{background:var(--ilt);border:2px solid var(--idk);
+  border-right-color:rgba(255,255,255,.9);border-bottom-color:rgba(255,255,255,.9);
+  border-radius:2px;padding:6px;}
+.slbl{font-family:'Press Start 2P';font-size:.31rem;letter-spacing:.07em;
+  color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
+.sep{height:2px;background:var(--idk);box-shadow:0 1px 0 rgba(255,255,255,.8);
+  margin:7px 0;border-radius:1px;}
+
+/* PLAYER */
+.ava-box{width:60px;height:60px;flex-shrink:0;background:linear-gradient(135deg,#d8c8f0,#b090d8);
+  border:2px solid var(--border);border-right-color:#c8d8f0;border-bottom-color:#c8d8f0;
+  border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:2rem;}
+.pname{font-family:'Press Start 2P';font-size:.42rem;background:transparent;
+  border:none;color:var(--ink);width:100%;outline:none;cursor:text;}
+.pname:focus{background:rgba(255,255,255,.6);border-radius:2px;padding:1px 3px;}
+.ptag{display:inline-block;padding:2px 8px;border-radius:12px;
+  font-size:.55rem;font-weight:900;letter-spacing:.03em;}
+.stat-row{display:flex;gap:5px;margin:8px 0;}
+.stat-box{flex:1;text-align:center;background:rgba(255,255,255,.6);
+  border:1.5px solid var(--idk);border-right-color:rgba(255,255,255,.9);
+  border-bottom-color:rgba(255,255,255,.9);border-radius:4px;padding:5px 4px;}
+.stat-val{font-family:'VT323';font-size:1.4rem;line-height:1;}
+.stat-lbl{font-size:.48rem;font-weight:900;color:var(--muted);letter-spacing:.06em;}
+.xp-bar{height:10px;background:var(--ilt);border:1.5px solid var(--idk);
+  border-right-color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.8);
+  border-radius:2px;overflow:hidden;margin-top:4px;}
+.xp-fill{height:100%;background:repeating-linear-gradient(90deg,var(--acc) 0,var(--acc) 5px,#a02010 5px,#a02010 7px);transition:width .5s;}
+.ava-pick{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;}
+.ava-btn{font-size:1.1rem;cursor:pointer;border-radius:3px;padding:1px;transition:.1s;}
+.ava-btn:hover{background:rgba(100,160,220,.3);}
+
+/* GRID */
+.mnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.mnav-btn{width:20px;height:20px;border:1.5px solid rgba(255,255,255,.8);
+  border-right-color:var(--bdk);border-bottom-color:var(--bdk);
+  background:linear-gradient(180deg,#c8e0f0,#88aac0);border-radius:2px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:900;color:var(--ink);}
+.mnav-btn:active{border-color:var(--bdk);border-right-color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.8);}
+.mlbl{font-family:'Press Start 2P';font-size:.4rem;letter-spacing:.06em;color:var(--ink);}
+.htbl{width:100%;border-collapse:collapse;table-layout:fixed;}
+.htbl th{font-family:'VT323';font-size:.78rem;color:var(--muted);text-align:center;padding:1px 0;line-height:1;font-weight:400;}
+.htbl th.hname-th{text-align:left;font-family:'Nunito';font-size:.58rem;font-weight:900;color:var(--ink);padding-left:2px;width:104px;}
+.htbl th.tod-th{color:var(--acc);}
+.htbl th.wknd-th{color:#8aabcc;}
+.htbl td{padding:1px 0;text-align:center;line-height:1;}
+.htbl td.hname-td{text-align:left;padding:3px 3px 3px 2px;font-size:.6rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.htbl tr{border-bottom:1px solid rgba(80,130,180,.1);}
+.htbl tr:last-child{border-bottom:none;}
+.htbl tr:hover td{background:rgba(100,160,220,.07);}
+.htbl td.tod-td{background:rgba(200,72,48,.08);}
+.cbx{display:none;}
+.cbbox{width:11px;height:11px;margin:0 auto;
+  background:linear-gradient(180deg,#eef6ff,#c8dcf0);
+  border:1.5px solid var(--idk);border-right-color:rgba(255,255,255,.85);
+  border-bottom-color:rgba(255,255,255,.85);border-radius:1px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;}
+.cbx:checked+.cbbox{background:linear-gradient(135deg,#c84830,#902010);border-color:#701808;}
+.cbx:checked+.cbbox::after{content:'';width:4px;height:2.5px;
+  border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;
+  transform:rotate(-45deg) translateY(-1px);display:block;}
+
+/* SKILLS */
+.skill-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+.skill-row:last-child{margin-bottom:0;}
+.skill-ico{width:28px;height:28px;flex-shrink:0;border:1.5px solid var(--border);
+  border-right-color:#c8d8f0;border-bottom-color:#c8d8f0;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;font-size:.82rem;}
+.skill-name{font-size:.64rem;font-weight:900;margin-bottom:2px;}
+.skill-bar{height:7px;background:var(--ilt);border:1.5px solid var(--idk);
+  border-right-color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.8);
+  border-radius:1px;overflow:hidden;}
+.skill-fill{height:100%;transition:width .4s;}
+
+/* STATS */
+.st-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.st-box{background:rgba(255,255,255,.6);border:1.5px solid var(--border);
+  border-right-color:#c8d8f0;border-bottom-color:#c8d8f0;border-radius:3px;padding:8px;text-align:center;}
+.st-val{font-family:'VT323';font-size:1.7rem;line-height:1;}
+.st-lbl{font-size:.46rem;font-weight:900;color:var(--muted);letter-spacing:.06em;margin-top:2px;}
+.wk-bars{display:flex;align-items:flex-end;gap:4px;height:56px;margin-top:6px;}
+.wk-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.wk-bar-out{width:100%;flex:1;background:var(--ilt);border:1.5px solid var(--idk);
+  border-right-color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.8);
+  display:flex;align-items:flex-end;border-radius:1px;overflow:hidden;}
+.wk-bar-in{width:100%;background:repeating-linear-gradient(0deg,var(--acc) 0,var(--acc) 3px,#902010 3px,#902010 5px);transition:height .4s;}
+.wk-col.today .wk-bar-in{background:repeating-linear-gradient(0deg,var(--pur) 0,var(--pur) 3px,#402890 3px,#402890 5px);}
+.wk-lbl{font-family:'VT323';font-size:.65rem;color:var(--muted);}
+.wk-col.today .wk-lbl{color:var(--pur);}
+
+/* BUTTONS */
+.px-btn{padding:4px 10px;border:1.5px solid rgba(255,255,255,.8);
+  border-right-color:var(--bdk);border-bottom-color:var(--bdk);
+  background:linear-gradient(180deg,#c8e0f0,#88a8c0);border-radius:2px;
+  cursor:pointer;font-family:'Press Start 2P';font-size:.32rem;letter-spacing:.04em;color:var(--ink);}
+.px-btn:active{border-color:var(--bdk);border-right-color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.8);}
+.px-btn.pri{background:linear-gradient(180deg,#f0b060,var(--acc));color:#fff;
+  border-right-color:#701808;border-bottom-color:#701808;}
+.px-input{width:100%;padding:4px 7px;background:var(--ilt);border:1.5px solid var(--idk);
+  border-right-color:rgba(255,255,255,.85);border-bottom-color:rgba(255,255,255,.85);
+  border-radius:2px;font-family:'Nunito';font-size:.72rem;font-weight:800;
+  color:var(--ink);outline:none;margin-bottom:6px;display:block;}
+.px-input:focus{border-color:var(--t1);}
+.px-select{width:100%;padding:4px 7px;background:var(--ilt);border:1.5px solid var(--idk);
+  border-right-color:rgba(255,255,255,.85);border-bottom-color:rgba(255,255,255,.85);
+  border-radius:2px;font-family:'Nunito';font-size:.72rem;font-weight:800;
+  color:var(--ink);outline:none;margin-bottom:8px;display:block;cursor:pointer;}
+
+/* NOTEPAD */
+.notepad-area{width:100%;height:150px;background:#fffde8;
+  border:2px solid var(--idk);border-right-color:rgba(255,255,255,.85);
+  border-bottom-color:rgba(255,255,255,.85);border-radius:2px;
+  padding:6px 8px;font-family:'Nunito';font-size:.72rem;font-weight:700;
+  color:var(--ink);resize:none;outline:none;line-height:1.65;
+  background-image:repeating-linear-gradient(transparent,transparent 18px,rgba(100,160,220,.13) 18px,rgba(100,160,220,.13) 19px);}
+.notepad-area::placeholder{color:var(--muted);}
+
+/* CALENDAR */
+.cal-header{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px;}
+.cal-dow{font-family:'Press Start 2P';font-size:.27rem;text-align:center;color:var(--muted);padding:2px 0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-day{aspect-ratio:1;border-radius:2px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;font-family:'VT323';font-size:.82rem;
+  line-height:1;background:rgba(255,255,255,.4);border:1px solid rgba(100,150,200,.15);}
+.cal-day.today{border:1.5px solid var(--acc);color:var(--acc);}
+.cal-day.future{color:#aac;background:rgba(255,255,255,.15);}
+.cal-day.empty{background:transparent;border-color:transparent;}
+.cal-dot{width:5px;height:5px;border-radius:50%;margin-top:1px;}
+.cal-legend{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:5px;}
+.cal-leg-item{display:flex;align-items:center;gap:3px;font-size:.52rem;font-weight:800;color:var(--muted);}
+.cal-leg-dot{width:7px;height:7px;border-radius:50%;}
+
+/* BOSS */
+.boss-name{font-family:'Press Start 2P';font-size:.4rem;color:var(--acc);
+  text-align:center;margin-bottom:3px;letter-spacing:.05em;}
+.boss-sprite{text-align:center;font-size:2.8rem;line-height:1;margin:4px 0;
+  transition:transform .1s,filter .1s;}
+.boss-sprite.hit{transform:translateX(5px) scale(1.08);
+  filter:drop-shadow(0 0 8px #ff4040) brightness(1.3);}
+.boss-sprite.dead{filter:grayscale(1) brightness(.5);transform:scale(.9);}
+.boss-hp-track{height:14px;background:#1a0808;border:2px solid #601010;
+  border-radius:2px;overflow:hidden;position:relative;margin:4px 0;}
+.boss-hp-fill{height:100%;
+  background:repeating-linear-gradient(90deg,#d02020 0,#d02020 6px,#a01010 6px,#a01010 8px);
+  transition:width .5s;}
+.boss-hp-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Press Start 2P';font-size:.34rem;color:#fff;letter-spacing:.05em;
+  text-shadow:1px 1px 0 rgba(0,0,0,.8);}
+.boss-msg{font-family:'VT323';font-size:.92rem;color:var(--muted);text-align:center;
+  min-height:1.3em;margin-top:4px;font-style:italic;}
+.boss-phases{display:flex;gap:4px;justify-content:center;margin:4px 0;}
+.boss-phase-dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--border);}
+.boss-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px;}
+.boss-stat{text-align:center;border-radius:3px;padding:5px;}
+
+/* ANALYTICS */
+.ring-row{display:flex;gap:6px;justify-content:space-around;margin-bottom:6px;}
+.ring-item{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.ring-lbl{font-family:'Press Start 2P';font-size:.27rem;color:var(--muted);text-align:center;letter-spacing:.04em;}
+.ring-val{font-family:'VT323';font-size:1.15rem;line-height:1;}
+.hmap-lbl-row{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:2px;}
+.hmap-lbl{font-family:'VT323';font-size:.65rem;color:var(--muted);text-align:center;}
+.hmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.hmap-cell{height:13px;border-radius:2px;border:1px solid rgba(100,150,200,.18);transition:background .3s;}
+.day-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.day-stat{border-radius:3px;padding:6px;text-align:center;}
+
+/* DESKTOP ICONS */
+.desk-icons{position:fixed;top:14px;right:10px;display:flex;flex-direction:column;gap:9px;z-index:1;}
+.d-icon{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;width:50px;}
+.d-icon:hover .d-ico{filter:brightness(1.15) drop-shadow(0 0 5px rgba(58,122,184,.65));}
+.d-ico{width:38px;height:38px;}
+.d-lbl{font-family:'Press Start 2P';font-size:.27rem;color:#fff;text-align:center;
+  line-height:1.5;text-shadow:1px 1px 0 #1a2a3a,0 0 4px #1a2a3a;}
+
+/* TASKBAR */
+.taskbar{position:fixed;bottom:0;left:0;right:0;height:33px;
+  background:linear-gradient(180deg,#c8daea,var(--bg));
+  border-top:2px solid rgba(255,255,255,.7);box-shadow:0 -1px 0 var(--bdk);
+  display:flex;align-items:center;gap:3px;padding:0 5px;z-index:9999;flex-wrap:nowrap;overflow:hidden;}
+.tb-start{display:flex;align-items:center;gap:4px;
+  background:linear-gradient(180deg,#c8e0f0,#70a0be);
+  border:1.5px solid rgba(255,255,255,.8);border-right-color:var(--bdk);border-bottom-color:var(--bdk);
+  padding:2px 7px;border-radius:2px;cursor:pointer;font-family:'Press Start 2P';
+  font-size:.33rem;color:var(--ink);letter-spacing:.04em;white-space:nowrap;}
+.tb-pill{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.35);
+  border:1.5px solid var(--idk);padding:2px 5px;border-radius:2px;cursor:pointer;
+  font-family:'Nunito';font-size:.58rem;font-weight:900;color:var(--ink);white-space:nowrap;}
+.tb-pill:hover{background:rgba(255,255,255,.6);}
+.tb-pill svg,.tb-start svg{width:11px;height:11px;flex-shrink:0;}
+.tb-clock{margin-left:auto;font-family:'VT323';font-size:1rem;color:var(--ink);
+  border:1.5px solid var(--idk);background:rgba(0,0,0,.08);
+  padding:1px 6px;border-radius:2px;min-width:50px;text-align:center;flex-shrink:0;}
+.notif{position:fixed;bottom:41px;right:12px;background:var(--win);
+  border:2px solid rgba(255,255,255,.8);border-right-color:var(--border);border-bottom-color:var(--border);
+  box-shadow:2px 2px 0 #1a3050;padding:5px 12px;border-radius:3px;
+  font-size:.68rem;font-weight:900;color:var(--grn);display:none;z-index:9998;}
+</style>
+</head>
+<body>
+
+<!-- SVG ICONS -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden">
+<defs>
+<symbol id="i-player" viewBox="0 0 20 20">
+  <rect width="20" height="20" rx="3" fill="#b888e0"/>
+  <rect x="6" y="2" width="8" height="7" rx="2" fill="#f0d0b0"/>
+  <rect x="7" y="3" width="6" height="5" fill="#e4ba8c"/>
+  <rect x="8" y="5" width="1" height="1" fill="#2a2a2a"/><rect x="11" y="5" width="1" height="1" fill="#2a2a2a"/>
+  <rect x="9" y="7" width="2" height="1" fill="#c07060"/>
+  <rect x="3" y="9" width="14" height="9" rx="2" fill="#5040b0"/>
+  <rect x="3" y="9" width="14" height="3" fill="#6858c8"/>
+  <rect x="1" y="10" width="3" height="7" rx="1" fill="#4838a0"/>
+  <rect x="16" y="10" width="3" height="7" rx="1" fill="#4838a0"/>
+</symbol>
+<symbol id="i-grid" viewBox="0 0 20 20">
+  <rect width="20" height="20" rx="3" fill="#5ab0d0"/>
+  <rect x="2" y="3" width="16" height="2" rx="1" fill="#fff"/>
+  <rect x="2" y="7" width="4" height="4" rx="1" fill="#fff"/>
+  <rect x="8" y="7" width="4" height="4" rx="1" fill="#c83020"/>
+  <rect x="14" y="7" width="4" height="4" rx="1" fill="#fff"/>
+  <rect x="2" y="13" width="4" height="4" rx="1" fill="#c83020"/>
+  <rect x="8" y="13" width="4" height="4" rx="1" fill="#fff"/>
+  <rect x="14" y="13" width="4" height="4" rx="1" fill="#c83020"/>
+</symbol>
+<symbol id="i-sword" viewBox="0 0 20 20">
+  <rect width="20" height="20" rx="3" fill="#c8a820"/>
+  <rect x="9" y="1" width="2" height="12" rx="1" fill="#c8c8e0"/>
+  <rect x="9" y="1" width="1" height="12" fill="#e8e8f8"/>
+  <rect x="4" y="9" width="12" height="2" rx="1" fill="#a08010"/>
+  <rect x="9" y="13" width="2" height="5" rx="1" fill="#705010"/>
+</symbol>
+<symbol id="i-chart" viewBox="0 0 20 20">
+  <rect width="20" height="20" rx="3" fill="#48b858"/>
+  <rect x="2" y="14" width="3" height="5" rx="1" fill="#1a7030"/>
+  <rect x="7" y="10" width="3" height="9" rx="1" fill="#1a7030"/>
+  <rect x="12" y="6" width="3" height="13" rx="1" fill="#1a7030"/>
+  <polyline points="3.5,14 8.5,10 13.5,6" fill="none" stroke="#fff" stroke-width="1.3" opacity=".7" stroke-linecap="round"/>
+</symbol>
+<symbol id="i-plus" viewBox="0 0 20 20">
+  <rect width="20" height="20" rx="3" fill="#e08028"/>
+  <rect x="9" y="3" width="2" height="14" rx="1" fill="#fff"/>
+  <rect x="3" y="9" width="14" height="2" rx="1" fill="#fff"/>
+</symbol>
+<symbol id="i-note" viewBox="0 0 20 20">
+  <rect width="20" height="20" rx="3" fill="#f8e050"/>
+  <rect x="3" y="6" width="14" height="1.5" rx=".5" fill="#b89010"/>
+  <rect x="3" y="9" width="14" height="1.5" rx=".5" fill="#b89010"/>
+  <rect x="3" y="12" width="10" height="1.5" rx=".5" fill="#b89010"/>
+  <rect x="3" y="15" width="7" height="1.5" rx=".5" fill="#b89010"/>
+  <rect x="9" y="1" width="2" height="4" rx="1" fill="#888"/>
+</symbol>
+<symbol id="i-cal" viewBox="0 0 20 20">
+  <rect width="20" height="20" rx="3" fill="#e06858"/>
+  <rect x="1" y="5" width="18" height="14" rx="2" fill="#f8f0ee"/>
+  <rect x="1" y="5" width="18" height="5" fill="#e06858"/>
+  <rect x="5" y="1" width="2" height="6" rx="1" fill="#fff"/>
+  <rect x="13" y="1" width="2" height="6" rx="1" fill="#fff"/>
+  <rect x="3" y="12" width="2" height="2" rx=".5" fill="#e06858"/>
+  <rect x="7" y="12" width="2" height="2" rx=".5" fill="#c8a020"/>
+  <rect x="11" y="12" width="2" height="2" rx=".5" fill="#2a9848"/>
+  <rect x="15" y="12" width="2" height="2" rx=".5" fill="#e06858"/>
+  <rect x="3" y="16" width="2" height="2" rx=".5" fill="#2a9848"/>
+  <rect x="7" y="16" width="2" height="2" rx=".5" fill="#e06858"/>
+</symbol>
+<symbol id="i-boss" viewBox="0 0 20 20">
+  <rect width="20" height="20" rx="3" fill="#901818"/>
+  <rect x="9" y="1" width="2" height="13" rx="1" fill="#d8d8e8"/>
+  <rect x="9" y="1" width="1" height="13" fill="#f0f0ff"/>
+  <rect x="4" y="8" width="12" height="2.5" rx="1" fill="#c8a020"/>
+  <rect x="9" y="14" width="2" height="5" rx="1" fill="#703010"/>
+  <circle cx="15" cy="4" r="3.5" fill="#ff3030"/>
+  <rect x="14.2" y="2.5" width="1.6" height="1.5" rx=".3" fill="#fff" opacity=".5"/>
+</symbol>
+<symbol id="i-analytics" viewBox="0 0 20 20">
+  <rect width="20" height="20" rx="3" fill="#4858b8"/>
+  <circle cx="10" cy="10" r="7.5" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2"/>
+  <circle cx="10" cy="10" r="7.5" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="23 25" stroke-dashoffset="6" stroke-linecap="round"/>
+  <circle cx="10" cy="10" r="4" fill="#6878d0"/>
+  <rect x="8" y="7" width="4" height="1" rx=".5" fill="#fff"/>
+  <rect x="8" y="10" width="4" height="1" rx=".5" fill="#fff"/>
+  <rect x="8" y="13" width="2.5" height="1" rx=".5" fill="#fff"/>
+</symbol>
+<symbol id="i-start" viewBox="0 0 16 16">
+  <rect width="16" height="16" rx="2" fill="#3070b0"/>
+  <rect x="1" y="1" width="6" height="6" rx="1" fill="#e89030"/>
+  <rect x="9" y="1" width="6" height="6" rx="1" fill="#40a850"/>
+  <rect x="1" y="9" width="6" height="6" rx="1" fill="#8040c0"/>
+  <rect x="9" y="9" width="6" height="6" rx="1" fill="#c83020"/>
+</symbol>
+</defs>
+</svg>
+
+<!-- DESKTOP ICONS -->
+<div class="desk-icons">
+  <div class="d-icon" onclick="bringFront('wPlayer')"><svg class="d-ico" viewBox="0 0 20 20"><use href="#i-player"/></svg><div class="d-lbl">Player.exe</div></div>
+  <div class="d-icon" onclick="bringFront('wHabits')"><svg class="d-ico" viewBox="0 0 20 20"><use href="#i-grid"/></svg><div class="d-lbl">Grid.exe</div></div>
+  <div class="d-icon" onclick="bringFront('wSkills')"><svg class="d-ico" viewBox="0 0 20 20"><use href="#i-sword"/></svg><div class="d-lbl">Skills.exe</div></div>
+  <div class="d-icon" onclick="bringFront('wStats')"><svg class="d-ico" viewBox="0 0 20 20"><use href="#i-chart"/></svg><div class="d-lbl">Stats.exe</div></div>
+  <div class="d-icon" onclick="openAdd()"><svg class="d-ico" viewBox="0 0 20 20"><use href="#i-plus"/></svg><div class="d-lbl">NewHabit</div></div>
+  <div class="d-icon" onclick="bringFront('wNote')"><svg class="d-ico" viewBox="0 0 20 20"><use href="#i-note"/></svg><div class="d-lbl">Notepad</div></div>
+  <div class="d-icon" onclick="bringFront('wCal')"><svg class="d-ico" viewBox="0 0 20 20"><use href="#i-cal"/></svg><div class="d-lbl">Calendar</div></div>
+  <div class="d-icon" onclick="bringFront('wBoss')"><svg class="d-ico" viewBox="0 0 20 20"><use href="#i-boss"/></svg><div class="d-lbl">Boss</div></div>
+  <div class="d-icon" onclick="bringFront('wAnalytics')"><svg class="d-ico" viewBox="0 0 20 20"><use href="#i-analytics"/></svg><div class="d-lbl">Analytics</div></div>
+</div>
+
+<!-- PLAYER -->
+<div class="win focused" id="wPlayer">
+  <div class="wtitle" onmousedown="dragStart(event,'wPlayer')">
+    <svg class="wtitle-ico" viewBox="0 0 20 20"><use href="#i-player"/></svg>
+    <span class="wtitle-txt">Player.jpg</span>
+    <div class="wbtns"><div class="wbtn">_</div><div class="wbtn">&#9633;</div><div class="wbtn cls" onclick="hideWin('wPlayer')">&#x2715;</div></div>
+  </div>
+  <div class="wbody">
+    <div style="display:flex;gap:9px;align-items:flex-start;margin-bottom:9px">
+      <div class="ava-box" id="ava">&#x1F9DD;</div>
+      <div style="flex:1;min-width:0">
+        <div class="slbl">NAME.exe</div>
+        <input class="pname" id="pname" value="Hunter" maxlength="12"/>
+        <div style="margin-top:5px"><span class="ptag" style="background:rgba(104,64,184,.16);color:#6840b8;border:1px solid rgba(104,64,184,.3)">&#x25C8; HABIT HUNTER</span></div>
+        <div style="margin-top:4px"><span class="ptag" id="lvltag" style="background:rgba(200,72,48,.16);color:#c84830;border:1px solid rgba(200,72,48,.3)">LV 1</span></div>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-val" id="s-streak" style="color:#c84830">0</div><div class="stat-lbl">STREAK</div></div>
+      <div class="stat-box"><div class="stat-val" id="s-today" style="color:#6840b8">0</div><div class="stat-lbl">TODAY</div></div>
+      <div class="stat-box"><div class="stat-val" id="s-total" style="color:#2a9848">0</div><div class="stat-lbl">TOTAL</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span class="slbl">EXP</span>
+      <span id="xplbl" style="font-family:'VT323';font-size:.88rem;color:#c84830">0 / 100</span>
+    </div>
+    <div class="xp-bar"><div class="xp-fill" id="xpfill" style="width:0%"></div></div>
+    <div class="sep"></div>
+    <div class="slbl">AVATAR.png</div>
+    <div class="ava-pick">
+      <span class="ava-btn" data-ava="&#x1F9DD;">&#x1F9DD;</span>
+      <span class="ava-btn" data-ava="&#x1F9D9;">&#x1F9D9;</span>
+      <span class="ava-btn" data-ava="&#x1F9B8;">&#x1F9B8;</span>
+      <span class="ava-btn" data-ava="&#x1F977;">&#x1F977;</span>
+      <span class="ava-btn" data-ava="&#x1F9DC;">&#x1F9DC;</span>
+      <span class="ava-btn" data-ava="&#x1F9DA;">&#x1F9DA;</span>
+    </div>
+  </div>
+</div>
+
+<!-- HABIT GRID -->
+<div class="win" id="wHabits">
+  <div class="wtitle" onmousedown="dragStart(event,'wHabits')">
+    <svg class="wtitle-ico" viewBox="0 0 20 20"><use href="#i-grid"/></svg>
+    <span class="wtitle-txt">HabitGrid.exe</span>
+    <div class="wbtns"><div class="wbtn">_</div><div class="wbtn">&#9633;</div><div class="wbtn cls" onclick="hideWin('wHabits')">&#x2715;</div></div>
+  </div>
+  <div class="wbody">
+    <div class="mnav">
+      <button class="mnav-btn" onclick="changeMonth(-1)">&#9664;</button>
+      <span class="mlbl" id="mlbl">MARCH 2026</span>
+      <button class="mnav-btn" onclick="changeMonth(1)">&#9654;</button>
+    </div>
+    <div class="inset" style="padding:4px">
+      <table class="htbl"><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+    </div>
+    <div style="margin-top:6px;text-align:right">
+      <button class="px-btn" onclick="openAdd()">+ NEW QUEST</button>
+    </div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<div class="win" id="wSkills">
+  <div class="wtitle" onmousedown="dragStart(event,'wSkills')">
+    <svg class="wtitle-ico" viewBox="0 0 20 20"><use href="#i-sword"/></svg>
+    <span class="wtitle-txt">Skills.png</span>
+    <div class="wbtns"><div class="wbtn">_</div><div class="wbtn">&#9633;</div><div class="wbtn cls" onclick="hideWin('wSkills')">&#x2715;</div></div>
+  </div>
+  <div class="wbody" id="skillsbody"><div style="font-size:.65rem;color:var(--muted);text-align:center;padding:8px">No habits yet</div></div>
+</div>
+
+<!-- STATS -->
+<div class="win" id="wStats">
+  <div class="wtitle" onmousedown="dragStart(event,'wStats')">
+    <svg class="wtitle-ico" viewBox="0 0 20 20"><use href="#i-chart"/></svg>
+    <span class="wtitle-txt">Stats.exe</span>
+    <div class="wbtns"><div class="wbtn">_</div><div class="wbtn">&#9633;</div><div class="wbtn cls" onclick="hideWin('wStats')">&#x2715;</div></div>
+  </div>
+  <div class="wbody">
+    <div class="st-grid">
+      <div class="st-box"><div class="st-val" id="st-pct" style="color:#c84830">0%</div><div class="st-lbl">COMPLETION</div></div>
+      <div class="st-box"><div class="st-val" id="st-best" style="color:#6840b8">0</div><div class="st-lbl">BEST STREAK</div></div>
+      <div class="st-box"><div class="st-val" id="st-perf" style="color:#2a9848">0</div><div class="st-lbl">PERFECT DAYS</div></div>
+      <div class="st-box"><div class="st-val" id="st-xp" style="color:#e08830">0</div><div class="st-lbl">TOTAL XP</div></div>
+    </div>
+    <div class="sep"></div>
+    <div class="slbl">WEEKLY.bmp</div>
+    <div class="wk-bars" id="wkbars"></div>
+  </div>
+</div>
+
+<!-- ADD HABIT -->
+<div class="win" id="wAdd" style="display:none">
+  <div class="wtitle" onmousedown="dragStart(event,'wAdd')">
+    <svg class="wtitle-ico" viewBox="0 0 20 20"><use href="#i-plus"/></svg>
+    <span class="wtitle-txt">NewHabit.exe</span>
+    <div class="wbtns"><div class="wbtn">_</div><div class="wbtn">&#9633;</div><div class="wbtn cls" onclick="hideWin('wAdd')">&#x2715;</div></div>
+  </div>
+  <div class="wbody">
+    <div class="slbl" style="margin-bottom:4px">HABIT NAME</div>
+    <input class="px-input" id="newname" placeholder="e.g. Read 20 min" maxlength="20"/>
+    <div class="slbl" style="margin-bottom:4px">CATEGORY</div>
+    <select class="px-select" id="newcat">
+      <option value="Mindset">🟣 Mindset</option>
+      <option value="Fitness">💪 Fitness</option>
+      <option value="Learning">📚 Learning</option>
+      <option value="Finance">💰 Finance</option>
+      <option value="Focus">🎯 Focus</option>
+      <option value="Social">❤️ Social</option>
+    </select>
+    <div style="display:flex;gap:5px">
+      <button class="px-btn" onclick="hideWin('wAdd')">CANCEL</button>
+      <button class="px-btn pri" onclick="doAdd()">ADD &#x25B8;</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTEPAD -->
+<div class="win" id="wNote" style="display:none">
+  <div class="wtitle" onmousedown="dragStart(event,'wNote')">
+    <svg class="wtitle-ico" viewBox="0 0 20 20"><use href="#i-note"/></svg>
+    <span class="wtitle-txt">Notepad.exe</span>
+    <div class="wbtns"><div class="wbtn">_</div><div class="wbtn">&#9633;</div><div class="wbtn cls" onclick="hideWin('wNote')">&#x2715;</div></div>
+  </div>
+  <div class="wbody">
+    <div class="slbl" style="margin-bottom:4px">TODAY'S GOALS</div>
+    <textarea class="notepad-area" id="noteArea" placeholder="Write your goals, thoughts, intentions..."></textarea>
+    <div style="display:flex;justify-content:space-between;margin-top:5px;align-items:center">
+      <span style="font-family:'VT323';font-size:.78rem;color:var(--muted)" id="noteDate"></span>
+      <button class="px-btn" id="noteSaveBtn" onclick="saveNote()">SAVE</button>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="win" id="wCal" style="display:none">
+  <div class="wtitle" onmousedown="dragStart(event,'wCal')">
+    <svg class="wtitle-ico" viewBox="0 0 20 20"><use href="#i-cal"/></svg>
+    <span class="wtitle-txt">Calendar.exe</span>
+    <div class="wbtns"><div class="wbtn">_</div><div class="wbtn">&#9633;</div><div class="wbtn cls" onclick="hideWin('wCal')">&#x2715;</div></div>
+  </div>
+  <div class="wbody">
+    <div class="mnav" style="margin-bottom:6px">
+      <button class="mnav-btn" id="calPrevBtn">&#9664;</button>
+      <span class="mlbl" id="calLbl">MARCH 2026</span>
+      <button class="mnav-btn" id="calNextBtn">&#9654;</button>
+    </div>
+    <div class="cal-header">
+      <div class="cal-dow">S</div><div class="cal-dow">M</div><div class="cal-dow">T</div>
+      <div class="cal-dow">W</div><div class="cal-dow">T</div><div class="cal-dow">F</div><div class="cal-dow">S</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="sep"></div>
+    <div class="cal-legend">
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#2a9848"></div>Perfect</div>
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#e08830"></div>Partial</div>
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#c84830"></div>Missed</div>
+    </div>
+  </div>
+</div>
+
+<!-- BOSS -->
+<div class="win" id="wBoss" style="display:none">
+  <div class="wtitle" onmousedown="dragStart(event,'wBoss')">
+    <svg class="wtitle-ico" viewBox="0 0 20 20"><use href="#i-boss"/></svg>
+    <span class="wtitle-txt">DailyBoss.exe</span>
+    <div class="wbtns"><div class="wbtn">_</div><div class="wbtn">&#9633;</div><div class="wbtn cls" onclick="hideWin('wBoss')">&#x2715;</div></div>
+  </div>
+  <div class="wbody">
+    <div class="boss-name" id="bossName">SLOTH DEMON</div>
+    <div class="boss-sprite" id="bossSprite">&#x1F479;</div>
+    <div class="boss-hp-track">
+      <div class="boss-hp-fill" id="bossHpFill" style="width:100%"></div>
+      <div class="boss-hp-lbl" id="bossHpLbl">HP 100/100</div>
+    </div>
+    <div class="boss-phases" id="bossPhases"></div>
+    <div class="boss-msg" id="bossMsg">Complete habits to deal damage!</div>
+    <div class="boss-stat-grid">
+      <div class="boss-stat" style="background:rgba(200,72,48,.1);border:1px solid rgba(200,72,48,.25)">
+        <div style="font-family:'VT323';font-size:1.3rem;color:#c84830" id="bossDmg">0</div>
+        <div style="font-size:.44rem;font-weight:900;color:var(--muted)">DMG TODAY</div>
+      </div>
+      <div class="boss-stat" style="background:rgba(42,152,72,.1);border:1px solid rgba(42,152,72,.25)">
+        <div style="font-family:'VT323';font-size:1.3rem;color:#2a9848" id="bossKills">0</div>
+        <div style="font-size:.44rem;font-weight:900;color:var(--muted)">BOSSES SLAIN</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+<div class="win" id="wAnalytics" style="display:none">
+  <div class="wtitle" onmousedown="dragStart(event,'wAnalytics')">
+    <svg class="wtitle-ico" viewBox="0 0 20 20"><use href="#i-analytics"/></svg>
+    <span class="wtitle-txt">Analytics.exe</span>
+    <div class="wbtns"><div class="wbtn">_</div><div class="wbtn">&#9633;</div><div class="wbtn cls" onclick="hideWin('wAnalytics')">&#x2715;</div></div>
+  </div>
+  <div class="wbody">
+    <div class="slbl" style="margin-bottom:5px">OVERVIEW</div>
+    <div class="ring-row" id="ringRow"></div>
+    <div class="sep"></div>
+    <div class="slbl" style="margin-bottom:4px">4-WEEK RHYTHM</div>
+    <div class="hmap-lbl-row">
+      <div class="hmap-lbl">S</div><div class="hmap-lbl">M</div><div class="hmap-lbl">T</div>
+      <div class="hmap-lbl">W</div><div class="hmap-lbl">T</div><div class="hmap-lbl">F</div><div class="hmap-lbl">S</div>
+    </div>
+    <div class="hmap-grid" id="hmapGrid"></div>
+    <div class="sep"></div>
+    <div class="day-stat-grid" id="dayStats"></div>
+  </div>
+</div>
+
+<div class="notif" id="notif">&#x2713; Quest added!</div>
+
+<!-- TASKBAR -->
+<div class="taskbar">
+  <button class="tb-start"><svg viewBox="0 0 16 16"><use href="#i-start"/></svg> START</button>
+  <div class="tb-pill" onclick="bringFront('wPlayer')"><svg viewBox="0 0 20 20"><use href="#i-player"/></svg> Player</div>
+  <div class="tb-pill" onclick="bringFront('wHabits')"><svg viewBox="0 0 20 20"><use href="#i-grid"/></svg> Grid</div>
+  <div class="tb-pill" onclick="bringFront('wSkills')"><svg viewBox="0 0 20 20"><use href="#i-sword"/></svg> Skills</div>
+  <div class="tb-pill" onclick="bringFront('wStats')"><svg viewBox="0 0 20 20"><use href="#i-chart"/></svg> Stats</div>
+  <div class="tb-pill" onclick="bringFront('wNote')"><svg viewBox="0 0 20 20"><use href="#i-note"/></svg> Notes</div>
+  <div class="tb-pill" onclick="bringFront('wCal')"><svg viewBox="0 0 20 20"><use href="#i-cal"/></svg> Cal</div>
+  <div class="tb-pill" onclick="bringFront('wBoss')"><svg viewBox="0 0 20 20"><use href="#i-boss"/></svg> Boss</div>
+  <div class="tb-pill" onclick="bringFront('wAnalytics')"><svg viewBox="0 0 20 20"><use href="#i-analytics"/></svg> Analytics</div>
+  <div class="tb-clock" id="clock">00:00</div>
+</div>
+
+<script>
+/* ── CATS ── */
+const CATS = {
+  Mindset:  {color:'#6840b8',bg:'rgba(104,64,184,.14)',dot:'#6840b8'},
+  Fitness:  {color:'#b03878',bg:'rgba(176,56,120,.14)',dot:'#b03878'},
+  Learning: {color:'#1880a0',bg:'rgba(24,128,160,.14)',dot:'#1880a0'},
+  Finance:  {color:'#a88010',bg:'rgba(168,128,16,.14)',dot:'#a88010'},
+  Focus:    {color:'#c84830',bg:'rgba(200,72,48,.14)', dot:'#c84830'},
+  Social:   {color:'#289840',bg:'rgba(40,152,64,.14)', dot:'#289840'},
+};
+const CAT_ICO = {Mindset:'🟣',Fitness:'💪',Learning:'📚',Finance:'💰',Focus:'🎯',Social:'❤️'};
+
+/* ── STATE ── */
+function loadState() {
+  try { const s = localStorage.getItem('habitos_v6'); if(s) return JSON.parse(s); } catch(e){}
+  return {habits:[
+    {id:1,name:'Meditate',cat:'Mindset'},{id:2,name:'Exercise',cat:'Fitness'},
+    {id:3,name:'Read 20 min',cat:'Learning'},{id:4,name:'Budget log',cat:'Finance'},
+    {id:5,name:'No phone AM',cat:'Focus'},
+  ],checks:{},nextId:6,avatar:'🧝',playerName:'Hunter'};
+}
+function save() { localStorage.setItem('habitos_v6',JSON.stringify(state)); }
+let state = loadState();
+let viewDate = new Date();
+const TODAY = new Date();
+
+/* ── CLOCK ── */
+function tick() {
+  const n=new Date();
+  document.getElementById('clock').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+}
+tick(); setInterval(tick,15000);
+
+/* ── DRAG ── */
+let drag=null,dx=0,dy=0;
+function dragStart(e,id) {
+  bringFront(id); drag=id;
+  const el=document.getElementById(id);
+  dx=e.clientX-el.offsetLeft; dy=e.clientY-el.offsetTop; e.preventDefault();
+}
+document.addEventListener('mousemove',e=>{
+  if(!drag) return;
+  const el=document.getElementById(drag);
+  el.style.left=Math.max(0,e.clientX-dx)+'px';
+  el.style.top=Math.max(0,Math.min(e.clientY-dy,window.innerHeight-55))+'px';
+});
+document.addEventListener('mouseup',()=>drag=null);
+
+/* ── FOCUS ── */
+let zTop=100;
+function bringFront(id) {
+  const el=document.getElementById(id);
+  el.style.display=''; el.style.zIndex=++zTop;
+  document.querySelectorAll('.win').forEach(w=>w.classList.remove('focused'));
+  el.classList.add('focused');
+}
+document.querySelectorAll('.win').forEach(w=>w.addEventListener('mousedown',()=>bringFront(w.id)));
+function hideWin(id) { document.getElementById(id).style.display='none'; }
+function openAdd() { bringFront('wAdd'); document.getElementById('newname').focus(); }
+
+/* ── DATE HELPERS ── */
+const MONTHS=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+function daysIn(y,m){return new Date(y,m+1,0).getDate();}
+function ck(hid,y,m,d){return hid+'_'+y+'_'+m+'_'+d;}
+function isToday(y,m,d){return y===TODAY.getFullYear()&&m===TODAY.getMonth()&&d===TODAY.getDate();}
+
+/* ── GRID ── */
+function renderGrid() {
+  const y=viewDate.getFullYear(),m=viewDate.getMonth(),days=daysIn(y,m);
+  document.getElementById('mlbl').textContent=MONTHS[m]+' '+y;
+  let th='<tr><th class="hname-th">HABIT</th>';
+  for(let d=1;d<=days;d++){
+    const dow=new Date(y,m,d).getDay();
+    const cls=isToday(y,m,d)?'tod-th':(dow===0||dow===6)?'wknd-th':'';
+    th+='<th'+(cls?' class="'+cls+'"':'')+'>'+d+'</th>';
+  }
+  th+='</tr>';
+  document.getElementById('thead').innerHTML=th;
+  let tb='';
+  state.habits.forEach(h=>{
+    const c=CATS[h.cat]||CATS.Mindset;
+    tb+='<tr><td class="hname-td" title="'+h.name+'">'
+      +'<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+c.dot+';margin-right:4px;vertical-align:middle"></span>'
+      +h.name+'</td>';
+    for(let d=1;d<=days;d++){
+      const key=ck(h.id,y,m,d),checked=!!state.checks[key],tod=isToday(y,m,d);
+      tb+='<td'+(tod?' class="tod-td"':'')+'>'
+        +'<label style="display:flex;justify-content:center;align-items:center;cursor:pointer">'
+        +'<input type="checkbox" class="cbx" data-hid="'+h.id+'" data-y="'+y+'" data-m="'+m+'" data-d="'+d+'"'+(checked?' checked':'')+'>'
+        +'<div class="cbbox"></div></label></td>';
+    }
+    tb+='</tr>';
+  });
+  document.getElementById('tbody').innerHTML=tb;
+  // attach listeners
+  document.querySelectorAll('.cbx').forEach(cb=>{
+    cb.addEventListener('change',function(){
+      const key=ck(this.dataset.hid,this.dataset.y,this.dataset.m,this.dataset.d);
+      if(this.checked) state.checks[key]=1; else delete state.checks[key];
+      save(); updateAll();
+      // boss hit
+      if(this.checked){
+        const sp=document.getElementById('bossSprite');
+        sp.classList.add('hit'); setTimeout(()=>sp.classList.remove('hit'),200);
+      }
+    });
+  });
+}
+function changeMonth(d){viewDate.setMonth(viewDate.getMonth()+d);renderGrid();updateAll();}
+
+/* ── UPDATE ALL ── */
+function updateAll(){
+  updateStats(); renderSkills(); renderWeekBars(); updateBoss(); renderCal(); renderAnalytics();
+}
+
+/* ── STATS ── */
+function updateStats(){
+  const H=state.habits,n=H.length;
+  const y=viewDate.getFullYear(),m=viewDate.getMonth(),days=daysIn(y,m);
+  const ty=TODAY.getFullYear(),tm=TODAY.getMonth(),td=TODAY.getDate();
+  const dToday=H.filter(h=>state.checks[ck(h.id,ty,tm,td)]).length;
+  let total=0,perfect=0;
+  for(let d=1;d<=days;d++){let dc=0;H.forEach(h=>{if(state.checks[ck(h.id,y,m,d)]){total++;dc++;}});if(n&&dc===n)perfect++;}
+  const pct=n&&days?Math.round(total/(n*days)*100):0;
+  let streak=0; const cd=new Date(TODAY);
+  while(true){const dd=cd.getDate(),mm=cd.getMonth(),yy=cd.getFullYear();if(!H.some(h=>state.checks[ck(h.id,yy,mm,dd)]))break;streak++;cd.setDate(dd-1);}
+  let best=0,cur=0;
+  for(let d=1;d<=days;d++){if(H.some(h=>state.checks[ck(h.id,y,m,d)])){cur++;best=Math.max(best,cur);}else cur=0;}
+  const xp=total*5,lv=Math.floor(xp/100)+1;
+  document.getElementById('s-streak').textContent=streak;
+  document.getElementById('s-today').textContent=dToday;
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('xplbl').textContent=(xp%100)+' / 100';
+  document.getElementById('xpfill').style.width=(xp%100)+'%';
+  document.getElementById('lvltag').textContent='LV '+lv;
+  document.getElementById('st-pct').textContent=pct+'%';
+  document.getElementById('st-best').textContent=best;
+  document.getElementById('st-perf').textContent=perfect;
+  document.getElementById('st-xp').textContent=xp;
+}
+
+/* ── SKILLS ── */
+function renderSkills(){
+  const cm={},ty=TODAY.getFullYear(),tm=TODAY.getMonth(),td=TODAY.getDate();
+  state.habits.forEach(h=>{
+    if(!cm[h.cat])cm[h.cat]={done:0,total:0};
+    cm[h.cat].total++;
+    if(state.checks[ck(h.id,ty,tm,td)])cm[h.cat].done++;
+  });
+  const el=document.getElementById('skillsbody');
+  if(!Object.keys(cm).length){el.innerHTML='<div style="font-size:.65rem;color:var(--muted);text-align:center;padding:8px">No habits yet</div>';return;}
+  el.innerHTML=Object.entries(cm).map(([cat,{done,total}])=>{
+    const c=CATS[cat]||CATS.Mindset,pct=total?Math.round(done/total*100):0;
+    return '<div class="skill-row"><div class="skill-ico" style="background:'+c.bg+'">'+(CAT_ICO[cat]||'◈')+'</div>'
+      +'<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between">'
+      +'<span class="skill-name" style="color:'+c.color+'">'+cat+'</span>'
+      +'<span style="font-family:\'VT323\';font-size:.88rem;color:'+c.color+'">'+done+'/'+total+'</span></div>'
+      +'<div class="skill-bar"><div class="skill-fill" style="width:'+pct+'%;background:'+c.color+'"></div></div>'
+      +'</div></div>';
+  }).join('');
+}
+
+/* ── WEEK BARS ── */
+function renderWeekBars(){
+  const H=state.habits,DAYS=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  let html='';
+  for(let i=6;i>=0;i--){
+    const d=new Date(TODAY);d.setDate(TODAY.getDate()-i);
+    const done=H.filter(h=>state.checks[ck(h.id,d.getFullYear(),d.getMonth(),d.getDate())]).length;
+    const pct=H.length?Math.round(done/H.length*100):0;
+    html+='<div class="wk-col'+(i===0?' today':'')+'"><div class="wk-bar-out"><div class="wk-bar-in" style="height:'+Math.max(4,pct)+'%"></div></div><div class="wk-lbl">'+DAYS[d.getDay()]+'</div></div>';
+  }
+  document.getElementById('wkbars').innerHTML=html;
+}
+
+/* ── ADD HABIT ── */
+function doAdd(){
+  const name=document.getElementById('newname').value.trim();
+  const cat=document.getElementById('newcat').value;
+  if(!name)return;
+  state.habits.push({id:state.nextId++,name,cat});
+  save(); document.getElementById('newname').value='';
+  hideWin('wAdd'); renderGrid(); updateAll();
+  const n=document.getElementById('notif');n.style.display='block';setTimeout(()=>n.style.display='none',2000);
+}
+document.getElementById('newname').addEventListener('keydown',e=>{if(e.key==='Enter')doAdd();});
+
+/* ── AVATAR / NAME ── */
+document.querySelectorAll('.ava-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    state.avatar=this.textContent; save();
+    document.getElementById('ava').textContent=this.textContent;
+  });
+});
+document.getElementById('pname').addEventListener('input',e=>{state.playerName=e.target.value;save();});
+
+/* ── NOTEPAD ── */
+function saveNote(){
+  const key='note_'+TODAY.toISOString().slice(0,10);
+  localStorage.setItem(key,document.getElementById('noteArea').value);
+  const btn=document.getElementById('noteSaveBtn');
+  btn.textContent='SAVED!'; setTimeout(()=>btn.textContent='SAVE',1200);
+}
+function loadNote(){
+  const key='note_'+TODAY.toISOString().slice(0,10);
+  document.getElementById('noteArea').value=localStorage.getItem(key)||'';
+  document.getElementById('noteDate').textContent=TODAY.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+document.getElementById('noteArea').addEventListener('input',()=>{clearTimeout(window._ns);window._ns=setTimeout(saveNote,1500);});
+
+/* ── CALENDAR ── */
+let calDate=new Date();
+document.getElementById('calPrevBtn').addEventListener('click',()=>{calDate.setMonth(calDate.getMonth()-1);renderCal();});
+document.getElementById('calNextBtn').addEventListener('click',()=>{calDate.setMonth(calDate.getMonth()+1);renderCal();});
+function renderCal(){
+  const y=calDate.getFullYear(),m=calDate.getMonth(),days=daysIn(y,m);
+  const firstDow=new Date(y,m,1).getDay(),n=state.habits.length;
+  document.getElementById('calLbl').textContent=MONTHS[m]+' '+y;
+  let html='';
+  for(let i=0;i<firstDow;i++) html+='<div class="cal-day empty"></div>';
+  for(let d=1;d<=days;d++){
+    const isT=isToday(y,m,d);
+    const past=new Date(y,m,d)<=TODAY;
+    let done=0; state.habits.forEach(h=>{if(state.checks[ck(h.id,y,m,d)])done++;});
+    let dot='';
+    if(past&&n>0){
+      const col=done===n?'#2a9848':done>0?'#e08830':'#c84830';
+      dot='<div class="cal-dot" style="background:'+col+'"></div>';
+    }
+    html+='<div class="cal-day'+(isT?' today':'')+((!past&&!isT)?' future':'')+'" title="'+done+'/'+n+'">'+d+dot+'</div>';
+  }
+  document.getElementById('calGrid').innerHTML=html;
+}
+
+/* ── BOSS ── */
+const BOSSES=[
+  {name:'SLOTH DEMON', sprite:'👹',maxHp:100,phases:3},
+  {name:'CHAOS WRAITH',sprite:'👺',maxHp:120,phases:3},
+  {name:'SHADOW KING', sprite:'🧟',maxHp:150,phases:4},
+  {name:'VOID TITAN',  sprite:'👾',maxHp:200,phases:5},
+];
+const BOSS_TAUNT=['Complete habits to deal damage!','You call that discipline?!','I thrive on your laziness!','One more habit will hurt me...','My power wanes! Keep going!','Almost... FINISH ME!'];
+const BOSS_DEAD=['DEFEATED! New boss tomorrow!','Slain! The realm rests... for now.','You win this day, hunter!'];
+function updateBoss(){
+  const H=state.habits,n=H.length;
+  if(!n){document.getElementById('bossMsg').textContent='Add habits to fight!';return;}
+  const ty=TODAY.getFullYear(),tm=TODAY.getMonth(),td=TODAY.getDate();
+  const done=H.filter(h=>state.checks[ck(h.id,ty,tm,td)]).length;
+  const bidx=parseInt(localStorage.getItem('bossIdx')||'0')%BOSSES.length;
+  const boss=BOSSES[bidx];
+  const dmg=Math.floor(done/n*boss.maxHp);
+  const hp=Math.max(0,boss.maxHp-dmg);
+  const hpPct=Math.round(hp/boss.maxHp*100);
+  const kills=parseInt(localStorage.getItem('bossKills')||'0');
+  document.getElementById('bossName').textContent=boss.name;
+  document.getElementById('bossSprite').textContent=boss.sprite;
+  document.getElementById('bossHpFill').style.width=hpPct+'%';
+  document.getElementById('bossHpLbl').textContent='HP '+hp+'/'+boss.maxHp;
+  document.getElementById('bossDmg').textContent=dmg;
+  document.getElementById('bossKills').textContent=kills;
+  // hp bar color
+  const fill=document.getElementById('bossHpFill');
+  fill.style.background=hpPct>60?'repeating-linear-gradient(90deg,#d02020 0,#d02020 6px,#a01010 6px,#a01010 8px)':
+    hpPct>25?'repeating-linear-gradient(90deg,#d08020 0,#d08020 6px,#a05010 6px,#a05010 8px)':
+    'repeating-linear-gradient(90deg,#20a840 0,#20a840 6px,#108020 6px,#108020 8px)';
+  // phases
+  let ph='';
+  for(let i=0;i<boss.phases;i++){
+    const threshold=Math.round(boss.maxHp*(boss.phases-i)/boss.phases);
+    ph+='<div class="boss-phase-dot" style="background:'+(hp<=threshold?'#c84830':'rgba(200,72,48,.2)')+'"></div>';
+  }
+  document.getElementById('bossPhases').innerHTML=ph;
+  // message & sprite state
+  const sp=document.getElementById('bossSprite');
+  if(hp===0){
+    document.getElementById('bossMsg').textContent=BOSS_DEAD[Math.floor(Math.random()*BOSS_DEAD.length)];
+    sp.classList.add('dead');
+  } else {
+    const mi=Math.min(Math.floor((1-hpPct/100)*BOSS_TAUNT.length),BOSS_TAUNT.length-1);
+    document.getElementById('bossMsg').textContent=BOSS_TAUNT[mi];
+    sp.classList.remove('dead');
+  }
+}
+
+/* ── ANALYTICS ── */
+function renderAnalytics(){
+  const H=state.habits,n=H.length;
+  const y=TODAY.getFullYear(),m=TODAY.getMonth(),days=daysIn(y,m);
+  let total=0,perfect=0;
+  for(let d=1;d<=days;d++){let dc=0;H.forEach(h=>{if(state.checks[ck(h.id,y,m,d)]){total++;dc++;}});if(n&&dc===n)perfect++;}
+  const pct=n&&days?Math.round(total/(n*days)*100):0;
+  let streak=0;const cd2=new Date(TODAY);
+  while(true){const dd=cd2.getDate(),mm=cd2.getMonth(),yy=cd2.getFullYear();if(!H.some(h=>state.checks[ck(h.id,yy,mm,dd)]))break;streak++;cd2.setDate(dd-1);}
+  // rings
+  const rings=[
+    {label:'MONTH %',val:pct,max:100,color:'#c84830',suffix:'%'},
+    {label:'STREAK',val:streak,max:Math.max(streak,14),color:'#6840b8',suffix:'d'},
+    {label:'PERFECT',val:perfect,max:Math.max(perfect,days,1),color:'#2a9848',suffix:''},
+  ];
+  const R=20,C=26,circ=2*Math.PI*R;
+  document.getElementById('ringRow').innerHTML=rings.map(r=>{
+    const f=r.max>0?r.val/r.max:0,dash=(f*circ).toFixed(1);
+    return '<div class="ring-item">'
+      +'<svg width="'+(C*2)+'" height="'+(C*2)+'" viewBox="0 0 '+(C*2)+' '+(C*2)+'" style="transform:rotate(-90deg)">'
+      +'<circle cx="'+C+'" cy="'+C+'" r="'+R+'" fill="none" stroke="rgba(100,150,200,.2)" stroke-width="4"/>'
+      +'<circle cx="'+C+'" cy="'+C+'" r="'+R+'" fill="none" stroke="'+r.color+'" stroke-width="4"'
+      +' stroke-dasharray="'+dash+' '+(circ).toFixed(1)+'" stroke-linecap="round"/></svg>'
+      +'<div class="ring-val" style="color:'+r.color+'">'+r.val+r.suffix+'</div>'
+      +'<div class="ring-lbl">'+r.label+'</div></div>';
+  }).join('');
+  // heatmap 28 days
+  const start=new Date(TODAY);start.setDate(TODAY.getDate()-27);
+  const startDow=start.getDay();
+  let hmap='';
+  for(let i=0;i<startDow;i++) hmap+='<div class="hmap-cell" style="background:transparent;border-color:transparent"></div>';
+  for(let i=0;i<28;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const dd=d.getDate(),mm=d.getMonth(),yy=d.getFullYear();
+    const done=H.filter(h=>state.checks[ck(h.id,yy,mm,dd)]).length;
+    const future=d>TODAY;
+    let bg=future?'rgba(180,210,230,.12)':'rgba(200,230,255,.25)';
+    if(!future&&n>0){const r=done/n;bg=r===1?'rgba(42,152,72,.8)':r>=.5?'rgba(42,152,72,.4)':done>0?'rgba(224,136,48,.45)':'rgba(200,72,48,.25)';}
+    hmap+='<div class="hmap-cell" style="background:'+bg+'" title="'+dd+'/'+(mm+1)+'  '+done+'/'+n+'"></div>';
+  }
+  document.getElementById('hmapGrid').innerHTML=hmap;
+  // best/worst weekday
+  const sums=new Array(7).fill(0),cnts=new Array(7).fill(0);
+  for(let i=0;i<28;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    cnts[d.getDay()]++;
+    H.forEach(h=>{if(state.checks[ck(h.id,d.getFullYear(),d.getMonth(),d.getDate())])sums[d.getDay()]++;});
+  }
+  const DNAMES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const avgs=sums.map((s,i)=>cnts[i]?s/cnts[i]:0);
+  const best=avgs.indexOf(Math.max(...avgs));
+  const worst=avgs.indexOf(Math.min(...avgs));
+  document.getElementById('dayStats').innerHTML=
+    '<div class="day-stat" style="background:rgba(42,152,72,.1);border:1px solid rgba(42,152,72,.25)">'
+    +'<div style="font-size:.47rem;font-weight:900;color:var(--muted)">STRONGEST DAY</div>'
+    +'<div style="font-family:\'VT323\';font-size:1.5rem;color:#2a9848">'+DNAMES[best]+'</div></div>'
+    +'<div class="day-stat" style="background:rgba(200,72,48,.1);border:1px solid rgba(200,72,48,.25)">'
+    +'<div style="font-size:.47rem;font-weight:900;color:var(--muted)">WEAKEST DAY</div>'
+    +'<div style="font-family:\'VT323\';font-size:1.5rem;color:#c84830">'+DNAMES[worst]+'</div></div>';
+}
+
+/* ── POSITION WINDOWS ── */
+function positionWindows(){
+  const W=window.innerWidth,H=window.innerHeight;
+  const pW=256,hW=Math.min(Math.max(380,W-pW-80),720),sW=256,stW=260;
+  const lx=18,rx=lx+pW+12;
+  function pos(id,x,y,w){const el=document.getElementById(id);el.style.left=x+'px';el.style.top=y+'px';if(w)el.style.width=w+'px';}
+  pos('wPlayer',lx,18,pW);
+  pos('wHabits',rx,18,hW);
+  pos('wSkills',lx,310,sW);
+  pos('wStats',rx,Math.round(H*.53),stW);
+  pos('wNote',rx+stW+14,Math.round(H*.53),240);
+  pos('wBoss',rx+stW+14,18,220);
+  pos('wCal',rx+stW+250,18,238);
+  pos('wAdd',rx,18,200);
+  pos('wAnalytics',rx+stW+14,Math.round(H*.3),275);
+}
+
+/* ── INIT ── */
+document.getElementById('ava').textContent=state.avatar||'🧝';
+document.getElementById('pname').value=state.playerName||'Hunter';
+positionWindows();
+loadNote();
+renderGrid();
+updateAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heart Animation</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'Georgia', serif;
+  }
+
+  canvas {
+    display: block;
+  }
+
+  .title {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 1.4rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(255, 80, 160, 0.8);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="title">Heart Animation</div>
+<canvas id="c"></canvas>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+});
+
+// Heart parametric function
+function heartX(t) {
+  return 16 * Math.pow(Math.sin(t), 3);
+}
+function heartY(t) {
+  return -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+}
+
+const SCALE = Math.min(W, H) / 55;
+const CX = W / 2;
+const CY = H / 2;
+
+// Pre-compute heart outline points
+const OUTLINE_POINTS = 400;
+const heartPts = [];
+for (let i = 0; i <= OUTLINE_POINTS; i++) {
+  const t = (i / OUTLINE_POINTS) * Math.PI * 2;
+  heartPts.push({
+    x: CX + heartX(t) * SCALE,
+    y: CY + heartY(t) * SCALE
+  });
+}
+
+// Light rays
+class Ray {
+  constructor() { this.reset(true); }
+
+  reset(init = false) {
+    // Pick a random point on the heart outline
+    const idx = Math.floor(Math.random() * heartPts.length);
+    this.ox = heartPts[idx].x;
+    this.oy = heartPts[idx].y;
+
+    // Pick a second point on heart as target
+    const idx2 = Math.floor(Math.random() * heartPts.length);
+    this.tx = heartPts[idx2].x;
+    this.ty = heartPts[idx2].y;
+
+    // Direction with small random angle spread
+    const baseAngle = Math.atan2(this.ty - this.oy, this.tx - this.ox);
+    const spread = (Math.random() - 0.5) * 0.5;
+    this.angle = baseAngle + spread;
+
+    this.speed = 2 + Math.random() * 4;
+    this.length = 60 + Math.random() * 140;
+    this.maxLife = this.length / this.speed;
+    this.life = init ? Math.random() * this.maxLife : 0;
+
+    // Color: pink / magenta / white hot core
+    const hue = 310 + Math.random() * 40; // 310-350: pink-magenta
+    this.hue = hue;
+    this.alpha = 0.4 + Math.random() * 0.6;
+    this.width = 0.5 + Math.random() * 1.5;
+  }
+
+  update() {
+    this.life++;
+    if (this.life > this.maxLife) this.reset();
+  }
+
+  draw() {
+    const progress = this.life / this.maxLife;
+    const fade = Math.sin(progress * Math.PI); // fade in and out
+
+    const x1 = this.ox + Math.cos(this.angle) * (this.life - 1) * this.speed;
+    const y1 = this.oy + Math.sin(this.angle) * (this.life - 1) * this.speed;
+    const x2 = this.ox + Math.cos(this.angle) * this.life * this.speed;
+    const y2 = this.oy + Math.sin(this.angle) * this.life * this.speed;
+
+    const alpha = fade * this.alpha;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = `hsl(${this.hue}, 100%, 70%)`;
+    ctx.lineWidth = this.width;
+    ctx.shadowColor = `hsl(${this.hue}, 100%, 60%)`;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// Inner sparks that travel along the heart outline
+class OutlineSpark {
+  constructor() { this.reset(); }
+  reset() {
+    this.t = Math.random() * Math.PI * 2;
+    this.speed = (Math.random() > 0.5 ? 1 : -1) * (0.005 + Math.random() * 0.02);
+    this.life = 0;
+    this.maxLife = 80 + Math.random() * 120;
+    this.hue = 300 + Math.random() * 60;
+    this.size = 1 + Math.random() * 2.5;
+  }
+  update() {
+    this.t += this.speed;
+    this.life++;
+    if (this.life > this.maxLife) this.reset();
+  }
+  draw() {
+    const progress = this.life / this.maxLife;
+    const fade = Math.sin(progress * Math.PI);
+    const x = CX + heartX(this.t) * SCALE;
+    const y = CY + heartY(this.t) * SCALE;
+
+    ctx.save();
+    ctx.globalAlpha = fade * 0.9;
+    ctx.fillStyle = `hsl(${this.hue}, 100%, 80%)`;
+    ctx.shadowColor = `hsl(${this.hue}, 100%, 65%)`;
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(x, y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// Pulse rings
+let pulseTime = 0;
+function drawPulse() {
+  pulseTime += 0.015;
+  const pulses = 3;
+  for (let i = 0; i < pulses; i++) {
+    const phase = (pulseTime + i / pulses) % 1;
+    const alpha = (1 - phase) * 0.18;
+    const scaleF = 1 + phase * 0.35;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(CX, CY);
+    ctx.scale(scaleF, scaleF);
+    ctx.translate(-CX, -CY);
+
+    ctx.beginPath();
+    for (let j = 0; j <= OUTLINE_POINTS; j++) {
+      const t = (j / OUTLINE_POINTS) * Math.PI * 2;
+      const x = CX + heartX(t) * SCALE;
+      const y = CY + heartY(t) * SCALE;
+      j === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = `hsl(330, 100%, 65%)`;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = `hsl(330, 100%, 55%)`;
+    ctx.shadowBlur = 20;
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawHeartOutline() {
+  // Glowing heart outline
+  for (let pass = 0; pass < 3; pass++) {
+    ctx.beginPath();
+    heartPts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.closePath();
+
+    if (pass === 0) {
+      ctx.strokeStyle = 'rgba(255,30,100,0.15)';
+      ctx.lineWidth = 12;
+      ctx.shadowBlur = 0;
+    } else if (pass === 1) {
+      ctx.strokeStyle = 'rgba(255,60,140,0.5)';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#ff2080';
+      ctx.shadowBlur = 18;
+    } else {
+      ctx.strokeStyle = 'rgba(255,180,220,0.9)';
+      ctx.lineWidth = 1;
+      ctx.shadowColor = '#ffffff';
+      ctx.shadowBlur = 8;
+    }
+    ctx.stroke();
+  }
+  ctx.shadowBlur = 0;
+}
+
+// Create entities
+const RAYS = 220;
+const SPARKS = 60;
+const rays = Array.from({ length: RAYS }, () => new Ray());
+const sparks = Array.from({ length: SPARKS }, () => new OutlineSpark());
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Subtle trail
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Pulse rings behind
+  drawPulse();
+
+  // Heart outline
+  drawHeartOutline();
+
+  // Light rays
+  rays.forEach(r => { r.update(); r.draw(); });
+
+  // Outline sparks
+  sparks.forEach(s => { s.update(); s.draw(); });
+}
+
+animate();
+</script>
+</body>
+</html>

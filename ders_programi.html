@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yazılı Hazırlık Programı</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0e;
+    --surface: #141416;
+    --surface2: #1c1c20;
+    --border: rgba(255,255,255,0.07);
+    --text: #f0ede8;
+    --muted: #6b6870;
+    --alm: #a78bfa;
+    --alm-bg: rgba(167,139,250,0.1);
+    --mat: #60a5fa;
+    --mat-bg: rgba(96,165,250,0.1);
+    --fiz: #fb923c;
+    --fiz-bg: rgba(251,146,60,0.1);
+    --bio: #4ade80;
+    --bio-bg: rgba(74,222,128,0.1);
+    --travel: #fbbf24;
+    --travel-bg: rgba(251,191,36,0.1);
+    --break: #3f3f46;
+    --break-bg: rgba(63,63,70,0.3);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  header {
+    padding: 60px 48px 40px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -120px; left: -80px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(167,139,250,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; right: 60px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(96,165,250,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-left h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+  .header-left h1 em { font-style: italic; color: var(--alm); }
+  .header-left p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; }
+  .leg {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-family: 'DM Mono', monospace;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  .leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  main {
+    padding: 40px 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .day {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .day:nth-child(1)  { animation-delay: 0.05s; }
+  .day:nth-child(2)  { animation-delay: 0.10s; }
+  .day:nth-child(3)  { animation-delay: 0.15s; }
+  .day:nth-child(4)  { animation-delay: 0.20s; }
+  .day:nth-child(5)  { animation-delay: 0.25s; }
+  .day:nth-child(6)  { animation-delay: 0.30s; }
+  .day:nth-child(7)  { animation-delay: 0.35s; }
+  .day:nth-child(8)  { animation-delay: 0.40s; }
+  .day:nth-child(9)  { animation-delay: 0.45s; }
+  .day:nth-child(10) { animation-delay: 0.50s; }
+  .day:nth-child(11) { animation-delay: 0.55s; }
+
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+  .day.weekend     { border-color: rgba(167,139,250,0.15); }
+  .day.travel-day  { border-color: rgba(251,191,36,0.2); }
+  .day.exam-day    { border-color: rgba(251,146,60,0.3); grid-column: 1 / -1; }
+
+  .day-head {
+    padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .weekend .day-head   { background: rgba(167,139,250,0.04); }
+  .travel-day .day-head{ background: rgba(251,191,36,0.04); }
+
+  .day-name { font-size: 15px; font-weight: 500; color: var(--text); }
+  .day-date { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); margin-top: 2px; }
+
+  .badge {
+    font-size: 10px; font-family: 'DM Mono', monospace;
+    padding: 3px 8px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    white-space: nowrap;
+  }
+  .badge-today   { background: rgba(167,139,250,0.15); color: var(--alm); border: 1px solid rgba(167,139,250,0.25); }
+  .badge-hours   { background: var(--surface2); color: var(--muted); }
+  .badge-travel  { background: rgba(251,191,36,0.15); color: var(--travel); border: 1px solid rgba(251,191,36,0.25); }
+  .badge-weekend { background: rgba(167,139,250,0.1); color: var(--alm); border: 1px solid rgba(167,139,250,0.2); }
+  .badge-big     { background: rgba(96,165,250,0.12); color: var(--mat); border: 1px solid rgba(96,165,250,0.25); }
+
+  .blocks { padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+
+  .block {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px; border-radius: 10px;
+    transition: transform 0.15s ease; cursor: default;
+  }
+  .block:hover { transform: translateX(3px); }
+
+  .block-dot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .block-time { font-size: 10.5px; font-family: 'DM Mono', monospace; color: var(--muted); min-width: 96px; flex-shrink: 0; }
+  .block-label{ font-size: 13px; font-weight: 500; flex: 1; }
+  .block-dur  { font-size: 10.5px; font-family: 'DM Mono', monospace; color: var(--muted); flex-shrink: 0; }
+
+  .b-alm { background: var(--alm-bg);   } .b-alm .block-label { color: var(--alm);   } .b-alm .block-dot { background: var(--alm);   }
+  .b-mat { background: var(--mat-bg);   } .b-mat .block-label { color: var(--mat);   } .b-mat .block-dot { background: var(--mat);   }
+  .b-fiz { background: var(--fiz-bg);   } .b-fiz .block-label { color: var(--fiz);   } .b-fiz .block-dot { background: var(--fiz);   }
+  .b-bio { background: var(--bio-bg);   } .b-bio .block-label { color: var(--bio);   } .b-bio .block-dot { background: var(--bio);   }
+  .b-tek { background: var(--break-bg); } .b-tek .block-label { color: var(--muted); } .b-tek .block-dot { background: var(--break);  }
+  .b-ucak { background: var(--travel-bg); border: 1px dashed rgba(251,191,36,0.35); }
+  .b-ucak .block-label { color: var(--travel); } .b-ucak .block-dot { background: var(--travel); }
+
+  .exam-inner {
+    padding: 32px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+  }
+  .exam-inner h2 { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; color: var(--fiz); }
+  .exam-inner p  { font-size: 13px; color: var(--muted); margin-top: 4px; font-family: 'DM Mono', monospace; }
+  .exam-stars    { font-size: 28px; letter-spacing: 4px; opacity: 0.5; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Yazılı <em>Hazırlık</em><br>Programı</h1>
+    <p>24 Mart – 2 Nisan &nbsp;·&nbsp; 23:00'da bitiş &nbsp;·&nbsp; Yazılılar 3 Nisan &nbsp;·&nbsp; Molalar hariç net saat</p>
+  </div>
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--alm)"></div>Almanca</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--mat)"></div>Matematik</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--fiz)"></div>Fizik</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--bio)"></div>Biyoloji</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--travel)"></div>Seyahat</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Salı 24 Mart — net ders: 2.5+2+1.5+0.83=6.83h -->
+  <div class="day">
+    <div class="day-head">
+      <div><div class="day-name">Salı</div><div class="day-date">24 Mart</div></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="badge badge-today">bugün</span>
+        <span class="badge badge-hours">~6.5s ders</span>
+      </div>
+    </div>
+    <div class="blocks">
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">15:00 – 17:30</span><span class="block-label">Matematik</span><span class="block-dur">2.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">17:30 – 17:45</span><span class="block-label">Mola</span><span class="block-dur">15dk</span></div>
+      <div class="block b-alm"><div class="block-dot"></div><span class="block-time">17:45 – 19:45</span><span class="block-label">Almanca</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">19:45 – 20:30</span><span class="block-label">Yemek arası</span><span class="block-dur">45dk</span></div>
+      <div class="block b-fiz"><div class="block-dot"></div><span class="block-time">20:30 – 22:00</span><span class="block-label">Fizik</span><span class="block-dur">1.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">22:00 – 22:10</span><span class="block-label">Mola</span><span class="block-dur">10dk</span></div>
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">22:10 – 23:00</span><span class="block-label">Matematik — soru çözme</span><span class="block-dur">50dk</span></div>
+    </div>
+  </div>
+
+  <!-- Çarşamba 25 Mart — net: 2.5+2+1.5+0.83=6.83h -->
+  <div class="day">
+    <div class="day-head">
+      <div><div class="day-name">Çarşamba</div><div class="day-date">25 Mart</div></div>
+      <span class="badge badge-hours">~6.5s ders</span>
+    </div>
+    <div class="blocks">
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">15:00 – 17:30</span><span class="block-label">Matematik</span><span class="block-dur">2.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">17:30 – 17:45</span><span class="block-label">Mola</span><span class="block-dur">15dk</span></div>
+      <div class="block b-fiz"><div class="block-dot"></div><span class="block-time">17:45 – 19:45</span><span class="block-label">Fizik</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">19:45 – 20:30</span><span class="block-label">Yemek arası</span><span class="block-dur">45dk</span></div>
+      <div class="block b-alm"><div class="block-dot"></div><span class="block-time">20:30 – 22:00</span><span class="block-label">Almanca</span><span class="block-dur">1.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">22:00 – 22:10</span><span class="block-label">Mola</span><span class="block-dur">10dk</span></div>
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">22:10 – 23:00</span><span class="block-label">Matematik — soru çözme</span><span class="block-dur">50dk</span></div>
+    </div>
+  </div>
+
+  <!-- Perşembe 26 Mart — net: 2+2.5+1.5+0.83=6.83h -->
+  <div class="day">
+    <div class="day-head">
+      <div><div class="day-name">Perşembe</div><div class="day-date">26 Mart</div></div>
+      <span class="badge badge-hours">~6.5s ders</span>
+    </div>
+    <div class="blocks">
+      <div class="block b-alm"><div class="block-dot"></div><span class="block-time">15:00 – 17:00</span><span class="block-label">Almanca</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">17:00 – 17:15</span><span class="block-label">Mola</span><span class="block-dur">15dk</span></div>
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">17:15 – 19:45</span><span class="block-label">Matematik</span><span class="block-dur">2.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">19:45 – 20:30</span><span class="block-label">Yemek arası</span><span class="block-dur">45dk</span></div>
+      <div class="block b-bio"><div class="block-dot"></div><span class="block-time">20:30 – 22:00</span><span class="block-label">Biyoloji</span><span class="block-dur">1.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">22:00 – 22:10</span><span class="block-label">Mola</span><span class="block-dur">10dk</span></div>
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">22:10 – 23:00</span><span class="block-label">Matematik — soru çözme</span><span class="block-dur">50dk</span></div>
+    </div>
+  </div>
+
+  <!-- Cuma 27 Mart — UÇAK, eve 17:00 — net: 2+1.5+1=4.5s -->
+  <div class="day travel-day">
+    <div class="day-head">
+      <div><div class="day-name">Cuma</div><div class="day-date">27 Mart · eve 17:00'da geliş</div></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="badge badge-travel">✈ seyahat</span>
+        <span class="badge badge-hours">~4.5s ders</span>
+      </div>
+    </div>
+    <div class="blocks">
+      <div class="block b-ucak"><div class="block-dot"></div><span class="block-time">– –  17:00</span><span class="block-label">Uçuş & eve geliş</span><span class="block-dur">—</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">17:00 – 17:30</span><span class="block-label">Dinlenme / yerleşme</span><span class="block-dur">30dk</span></div>
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">17:30 – 19:30</span><span class="block-label">Matematik</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">19:30 – 20:15</span><span class="block-label">Yemek arası</span><span class="block-dur">45dk</span></div>
+      <div class="block b-alm"><div class="block-dot"></div><span class="block-time">20:15 – 21:45</span><span class="block-label">Almanca</span><span class="block-dur">1.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">21:45 – 21:55</span><span class="block-label">Mola</span><span class="block-dur">10dk</span></div>
+      <div class="block b-fiz"><div class="block-dot"></div><span class="block-time">21:55 – 23:00</span><span class="block-label">Fizik</span><span class="block-dur">1s</span></div>
+    </div>
+  </div>
+
+  <!-- Cumartesi 28 Mart — UZUN GÜN — net: 3.5+2+3+2+1.5=12s -->
+  <div class="day weekend">
+    <div class="day-head">
+      <div><div class="day-name">Cumartesi</div><div class="day-date">28 Mart · tam gün</div></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="badge badge-weekend">hafta sonu</span>
+        <span class="badge badge-big">~12s ders</span>
+      </div>
+    </div>
+    <div class="blocks">
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">09:00 – 12:30</span><span class="block-label">Matematik</span><span class="block-dur">3.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">12:30 – 12:45</span><span class="block-label">Mola</span><span class="block-dur">15dk</span></div>
+      <div class="block b-alm"><div class="block-dot"></div><span class="block-time">12:45 – 14:45</span><span class="block-label">Almanca</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">14:45 – 15:30</span><span class="block-label">Öğle arası</span><span class="block-dur">45dk</span></div>
+      <div class="block b-fiz"><div class="block-dot"></div><span class="block-time">15:30 – 18:30</span><span class="block-label">Fizik</span><span class="block-dur">3s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">18:30 – 18:45</span><span class="block-label">Mola</span><span class="block-dur">15dk</span></div>
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">18:45 – 20:45</span><span class="block-label">Matematik — soru çözme</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">20:45 – 21:30</span><span class="block-label">Yemek arası</span><span class="block-dur">45dk</span></div>
+      <div class="block b-bio"><div class="block-dot"></div><span class="block-time">21:30 – 23:00</span><span class="block-label">Biyoloji</span><span class="block-dur">1.5s</span></div>
+    </div>
+  </div>
+
+  <!-- Pazar 29 Mart — sabah çalış, 14:00 uçuş — net: 2+1.5+1=4.5s -->
+  <div class="day travel-day">
+    <div class="day-head">
+      <div><div class="day-name">Pazar</div><div class="day-date">29 Mart · 14:00'da uçuş, okula 20:30 dönüş</div></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="badge badge-travel">✈ seyahat</span>
+        <span class="badge badge-hours">~4.5s ders</span>
+      </div>
+    </div>
+    <div class="blocks">
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">09:00 – 11:00</span><span class="block-label">Matematik tekrar</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">11:00 – 11:10</span><span class="block-label">Mola</span><span class="block-dur">10dk</span></div>
+      <div class="block b-alm"><div class="block-dot"></div><span class="block-time">11:10 – 12:40</span><span class="block-label">Almanca tekrar</span><span class="block-dur">1.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">12:40 – 13:00</span><span class="block-label">Mola</span><span class="block-dur">20dk</span></div>
+      <div class="block b-fiz"><div class="block-dot"></div><span class="block-time">13:00 – 14:00</span><span class="block-label">Fizik tekrar</span><span class="block-dur">1s</span></div>
+      <div class="block b-ucak"><div class="block-dot"></div><span class="block-time">14:00 – 20:30</span><span class="block-label">Uçuş & okula dönüş</span><span class="block-dur">—</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">20:30 →</span><span class="block-label">Dinlenme — ders yok</span><span class="block-dur">—</span></div>
+    </div>
+  </div>
+
+  <!-- Pazartesi 30 Mart — net: 2.5+2+1.5+0.83=6.83h -->
+  <div class="day">
+    <div class="day-head">
+      <div><div class="day-name">Pazartesi</div><div class="day-date">30 Mart</div></div>
+      <span class="badge badge-hours">~6.5s ders</span>
+    </div>
+    <div class="blocks">
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">15:00 – 17:30</span><span class="block-label">Matematik</span><span class="block-dur">2.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">17:30 – 17:45</span><span class="block-label">Mola</span><span class="block-dur">15dk</span></div>
+      <div class="block b-alm"><div class="block-dot"></div><span class="block-time">17:45 – 19:45</span><span class="block-label">Almanca</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">19:45 – 20:30</span><span class="block-label">Yemek arası</span><span class="block-dur">45dk</span></div>
+      <div class="block b-fiz"><div class="block-dot"></div><span class="block-time">20:30 – 22:00</span><span class="block-label">Fizik</span><span class="block-dur">1.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">22:00 – 22:10</span><span class="block-label">Mola</span><span class="block-dur">10dk</span></div>
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">22:10 – 23:00</span><span class="block-label">Matematik — soru çözme</span><span class="block-dur">50dk</span></div>
+    </div>
+  </div>
+
+  <!-- Salı 31 Mart — net: 6.83h -->
+  <div class="day">
+    <div class="day-head">
+      <div><div class="day-name">Salı</div><div class="day-date">31 Mart</div></div>
+      <span class="badge badge-hours">~6.5s ders</span>
+    </div>
+    <div class="blocks">
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">15:00 – 17:30</span><span class="block-label">Matematik</span><span class="block-dur">2.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">17:30 – 17:45</span><span class="block-label">Mola</span><span class="block-dur">15dk</span></div>
+      <div class="block b-fiz"><div class="block-dot"></div><span class="block-time">17:45 – 19:45</span><span class="block-label">Fizik</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">19:45 – 20:30</span><span class="block-label">Yemek arası</span><span class="block-dur">45dk</span></div>
+      <div class="block b-alm"><div class="block-dot"></div><span class="block-time">20:30 – 22:00</span><span class="block-label">Almanca</span><span class="block-dur">1.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">22:00 – 22:10</span><span class="block-label">Mola</span><span class="block-dur">10dk</span></div>
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">22:10 – 23:00</span><span class="block-label">Matematik — soru çözme</span><span class="block-dur">50dk</span></div>
+    </div>
+  </div>
+
+  <!-- Çarşamba 1 Nisan — net: 6.83h -->
+  <div class="day">
+    <div class="day-head">
+      <div><div class="day-name">Çarşamba</div><div class="day-date">1 Nisan</div></div>
+      <span class="badge badge-hours">~6.5s ders</span>
+    </div>
+    <div class="blocks">
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">15:00 – 17:30</span><span class="block-label">Matematik</span><span class="block-dur">2.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">17:30 – 17:45</span><span class="block-label">Mola</span><span class="block-dur">15dk</span></div>
+      <div class="block b-alm"><div class="block-dot"></div><span class="block-time">17:45 – 19:45</span><span class="block-label">Almanca</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">19:45 – 20:30</span><span class="block-label">Yemek arası</span><span class="block-dur">45dk</span></div>
+      <div class="block b-bio"><div class="block-dot"></div><span class="block-time">20:30 – 22:00</span><span class="block-label">Biyoloji</span><span class="block-dur">1.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">22:00 – 22:10</span><span class="block-label">Mola</span><span class="block-dur">10dk</span></div>
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">22:10 – 23:00</span><span class="block-label">Matematik — soru çözme</span><span class="block-dur">50dk</span></div>
+    </div>
+  </div>
+
+  <!-- Perşembe 2 Nisan — son gece — net: 2+2+1.5+1.5=7s -->
+  <div class="day">
+    <div class="day-head">
+      <div><div class="day-name">Perşembe — son gece</div><div class="day-date">2 Nisan</div></div>
+      <span class="badge badge-hours">~7s ders</span>
+    </div>
+    <div class="blocks">
+      <div class="block b-mat"><div class="block-dot"></div><span class="block-time">15:00 – 17:00</span><span class="block-label">Matematik tekrar</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">17:00 – 17:15</span><span class="block-label">Mola</span><span class="block-dur">15dk</span></div>
+      <div class="block b-fiz"><div class="block-dot"></div><span class="block-time">17:15 – 19:15</span><span class="block-label">Fizik tekrar</span><span class="block-dur">2s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">19:15 – 20:00</span><span class="block-label">Yemek arası</span><span class="block-dur">45dk</span></div>
+      <div class="block b-alm"><div class="block-dot"></div><span class="block-time">20:00 – 21:30</span><span class="block-label">Almanca tekrar</span><span class="block-dur">1.5s</span></div>
+      <div class="block b-tek"><div class="block-dot"></div><span class="block-time">21:30 – 21:40</span><span class="block-label">Mola</span><span class="block-dur">10dk</span></div>
+      <div class="block b-bio"><div class="block-dot"></div><span class="block-time">21:40 – 23:00</span><span class="block-label">Biyoloji hızlı tarama</span><span class="block-dur">1.5s</span></div>
+    </div>
+  </div>
+
+  <!-- 3 Nisan -->
+  <div class="day exam-day">
+    <div class="exam-inner">
+      <div>
+        <h2>Yazılılar Başlıyor</h2>
+        <p>3 Nisan, Cuma</p>
+      </div>
+      <div class="exam-stars">★ ★ ★</div>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

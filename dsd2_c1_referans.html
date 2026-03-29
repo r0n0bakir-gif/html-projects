@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSD2 — C1 Dil Referansı</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141416;
+    --surface2: #1a1a1e;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #f0ede8;
+    --muted: #8a8780;
+    --accent: #c8a96e;
+    --accent2: #7eb89a;
+    --accent3: #e07070;
+    --accent4: #7ba8d4;
+    --pill-b2-bg: rgba(126,184,154,0.12);
+    --pill-b2: #7eb89a;
+    --pill-c1-bg: rgba(200,169,110,0.12);
+    --pill-c1: #c8a96e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 3rem 2rem 2rem;
+    max-width: 960px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  /* ── Nav ── */
+  nav {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.25rem 2rem;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(13,13,15,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .nav-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    font-weight: 400;
+  }
+
+  .nav-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+  .nav-btn.active { background: var(--accent); color: #1a1100; border-color: var(--accent); font-weight: 500; }
+
+  /* ── Main ── */
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+  }
+
+  .section { display: none; animation: fadeIn 0.25s ease; }
+  .section.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ── Section title ── */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .section-header p {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ── Group ── */
+  .group { margin-bottom: 2.5rem; }
+
+  .group-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.85rem;
+  }
+
+  /* ── Cards ── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .cards.wide { grid-template-columns: 1fr; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--border2); }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .kalip {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.45;
+    flex: 1;
+  }
+
+  .pill {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  .pill-b2 { background: var(--pill-b2-bg); color: var(--pill-b2); }
+  .pill-c1 { background: var(--pill-c1-bg); color: var(--pill-c1); }
+
+  .example {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.5;
+    border-left: 2px solid rgba(200,169,110,0.25);
+    padding-left: 10px;
+    margin-top: 6px;
+  }
+
+  .tip {
+    font-size: 12px;
+    color: rgba(200,169,110,0.7);
+    margin-top: 5px;
+  }
+
+  /* ── Upgrade table (Bağlaçlar) ── */
+  .upgrade-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+
+  .upgrade-row:hover { border-color: var(--border2); }
+
+  .old-word {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--accent3);
+    text-decoration: line-through;
+    text-decoration-color: rgba(224,112,112,0.5);
+    padding-right: 1rem;
+  }
+
+  .arrow {
+    font-size: 16px;
+    color: var(--muted);
+    padding: 0 0.5rem;
+    align-self: center;
+  }
+
+  .new-words {
+    padding-left: 1rem;
+    border-left: 1px solid var(--border2);
+  }
+
+  .new-word-item {
+    margin-bottom: 8px;
+  }
+
+  .new-word {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  .new-example {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+
+  /* ── Adjektiv grid ── */
+  .adj-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .adj-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: default;
+  }
+
+  .adj-card:hover {
+    border-color: rgba(200,169,110,0.3);
+    background: var(--surface2);
+  }
+
+  .adj-word {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .adj-meaning {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  .adj-example {
+    font-size: 12px;
+    color: rgba(240,237,232,0.5);
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  .adj-category {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 5px;
+  }
+
+  .cat-neg { background: rgba(224,112,112,0.1); color: var(--accent3); }
+  .cat-pos { background: rgba(126,184,154,0.1); color: var(--accent2); }
+  .cat-neu { background: rgba(123,168,212,0.1); color: var(--accent4); }
+
+  /* ── Search ── */
+  .search-wrap {
+    margin-bottom: 1.5rem;
+  }
+
+  input[type="search"] {
+    width: 100%;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="search"]:focus { border-color: var(--accent); }
+  input[type="search"]::placeholder { color: var(--muted); }
+
+  /* ── Footer ── */
+  footer {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .count-badge {
+    display: inline-block;
+    background: rgba(200,169,110,0.1);
+    color: var(--accent);
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    padding: 1px 7px;
+    border-radius: 8px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">DSD2 · Erörterung · Hazırlık Rehberi</div>
+  <h1>C1 <span>Dil Bankası</span></h1>
+  <p class="subtitle">Bağlaçlar · Kalıplar · Adjektivler — B1'den C1'e geçiş için pratik referans</p>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="show('baglac', this)">Bağlaçlar <span class="count-badge">25</span></button>
+  <button class="nav-btn" onclick="show('giris', this)">Giriş kalıpları</button>
+  <button class="nav-btn" onclick="show('pro', this)">Pro argüman</button>
+  <button class="nav-btn" onclick="show('kontra', this)">Kontra argüman</button>
+  <button class="nav-btn" onclick="show('gecis', this)">Geçiş kalıpları</button>
+  <button class="nav-btn" onclick="show('kanis', this)">Kanıt & kaynak</button>
+  <button class="nav-btn" onclick="show('sonuc', this)">Sonuç</button>
+  <button class="nav-btn" onclick="show('adjektiv', this)">C1 Adjektivler <span class="count-badge">90+</span></button>
+  <button class="nav-btn" onclick="show('verben', this)">C1 Fiiller <span class="count-badge">100</span></button>
+  <button class="nav-btn" onclick="show('nominal', this)">Nominalisierungen <span class="count-badge">60+</span></button>
+</nav>
+
+<main>
+
+<!-- ══════════════ BAĞLAÇLAR ══════════════ -->
+<div id="baglac" class="section active">
+  <div class="section-header">
+    <h2>Bağlaç Yükseltme</h2>
+    <p>Kırmızı = kaçın · Yeşil = kullan</p>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Neden / Gerekçe</div>
+    <div class="upgrade-row">
+      <div class="old-word">weil</div>
+      <div class="arrow">→</div>
+      <div class="new-words">
+        <div class="new-word-item"><span class="new-word">da</span><div class="new-example">Da die Eltern berufstätig sind, benötigen sie Unterstützung.</div></div>
+        <div class="new-word-item"><span class="new-word">zumal</span><div class="new-example">Zumal dies besonders für Alleinerziehende gilt.</div></div>
+        <div class="new-word-item"><span class="new-word">insofern als</span><div class="new-example">Dies ist problematisch, insofern als Kinder kaum Freizeit haben.</div></div>
+      </div>
+    </div>
+    <div class="upgrade-row">
+      <div class="old-word">denn</div>
+      <div class="arrow">→</div>
+      <div class="new-words">
+        <div class="new-word-item"><span class="new-word">schließlich</span><div class="new-example">Schließlich sind Kinder keine Maschinen.</div></div>
+        <div class="new-word-item"><span class="new-word">angesichts der Tatsache, dass</span><div class="new-example">Angesichts der Tatsache, dass Ressourcen begrenzt sind, erscheint dies sinnvoll.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Karşıtlık / Kısıtlama</div>
+    <div class="upgrade-row">
+      <div class="old-word">aber</div>
+      <div class="arrow">→</div>
+      <div class="new-words">
+        <div class="new-word-item"><span class="new-word">wenngleich</span><div class="new-example">Wenngleich die Vorteile überwiegen, darf man die Nachteile nicht ignorieren.</div></div>
+        <div class="new-word-item"><span class="new-word">gleichwohl</span><div class="new-example">Gleichwohl bleibt die Frage offen, ob dies langfristig sinnvoll ist.</div></div>
+        <div class="new-word-item"><span class="new-word">allerdings</span><div class="new-example">Dies gilt allerdings nur unter bestimmten Voraussetzungen.</div></div>
+        <div class="new-word-item"><span class="new-word">dennoch</span><div class="new-example">Dennoch sollte man die Schattenseiten nicht außer Acht lassen.</div></div>
+      </div>
+    </div>
+    <div class="upgrade-row">
+      <div class="old-word">trotzdem</div>
+      <div class="arrow">→</div>
+      <div class="new-words">
+        <div class="new-word-item"><span class="new-word">nichtsdestotrotz</span><div class="new-example">Nichtsdestotrotz überwiegen die Vorteile in der Praxis.</div></div>
+        <div class="new-word-item"><span class="new-word">ungeachtet dessen</span><div class="new-example">Ungeachtet dessen bleibt das Modell umstritten.</div></div>
+      </div>
+    </div>
+    <div class="upgrade-row">
+      <div class="old-word">obwohl</div>
+      <div class="arrow">→</div>
+      <div class="new-words">
+        <div class="new-word-item"><span class="new-word">obgleich</span><div class="new-example">Obgleich Studien dies belegen, fehlt es an konkreter Umsetzung.</div></div>
+        <div class="new-word-item"><span class="new-word">wenngleich</span><div class="new-example">Wenngleich die Kosten hoch sind, lohnt sich die Investition.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Ek bilgi / Üstüne koyma</div>
+    <div class="upgrade-row">
+      <div class="old-word">auch</div>
+      <div class="arrow">→</div>
+      <div class="new-words">
+        <div class="new-word-item"><span class="new-word">überdies</span><div class="new-example">Überdies fördert dieses System die soziale Kompetenz der Kinder.</div></div>
+        <div class="new-word-item"><span class="new-word">darüber hinaus</span><div class="new-example">Darüber hinaus profitieren auch sozial benachteiligte Familien.</div></div>
+        <div class="new-word-item"><span class="new-word">nicht zuletzt</span><div class="new-example">Nicht zuletzt spielt die finanzielle Entlastung eine wichtige Rolle.</div></div>
+        <div class="new-word-item"><span class="new-word">zudem</span><div class="new-example">Zudem bietet die Schule nachmittags gezielte Fördermaßnahmen.</div></div>
+      </div>
+    </div>
+    <div class="upgrade-row">
+      <div class="old-word">außerdem</div>
+      <div class="arrow">→</div>
+      <div class="new-words">
+        <div class="new-word-item"><span class="new-word">hinzu kommt, dass</span><div class="new-example">Hinzu kommt, dass Lehrkräfte gezielt auf individuelle Bedürfnisse eingehen können.</div></div>
+        <div class="new-word-item"><span class="new-word">ferner</span><div class="new-example">Ferner ist zu beachten, dass nicht alle Familien gleich betroffen sind.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Sonuç / Çıkarım</div>
+    <div class="upgrade-row">
+      <div class="old-word">deshalb</div>
+      <div class="arrow">→</div>
+      <div class="new-words">
+        <div class="new-word-item"><span class="new-word">folglich</span><div class="new-example">Folglich sinkt die Qualität der Erholungszeit erheblich.</div></div>
+        <div class="new-word-item"><span class="new-word">infolgedessen</span><div class="new-example">Infolgedessen werden kreative Fähigkeiten kaum gefördert.</div></div>
+        <div class="new-word-item"><span class="new-word">demnach</span><div class="new-example">Demnach lässt sich schlussfolgern, dass Reformen notwendig sind.</div></div>
+        <div class="new-word-item"><span class="new-word">demzufolge</span><div class="new-example">Demzufolge überwiegen langfristig die Nachteile.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Koşul</div>
+    <div class="upgrade-row">
+      <div class="old-word">wenn</div>
+      <div class="arrow">→</div>
+      <div class="new-words">
+        <div class="new-word-item"><span class="new-word">sofern</span><div class="new-example">Sofern ausreichend Ressourcen bereitgestellt werden, kann das Modell gelingen.</div></div>
+        <div class="new-word-item"><span class="new-word">unter der Voraussetzung, dass</span><div class="new-example">Unter der Voraussetzung, dass Eltern einbezogen werden, ist das Modell sinnvoll.</div></div>
+        <div class="new-word-item"><span class="new-word">soweit</span><div class="new-example">Soweit die Datenlage gesichert ist, lässt sich dies bestätigen.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Sıralama / Vurgulama</div>
+    <div class="upgrade-row">
+      <div class="old-word">zuerst / dann / am Ende</div>
+      <div class="arrow">→</div>
+      <div class="new-words">
+        <div class="new-word-item"><span class="new-word">zunächst einmal</span><div class="new-example">Zunächst einmal ist festzuhalten, dass…</div></div>
+        <div class="new-word-item"><span class="new-word">im weiteren Verlauf</span><div class="new-example">Im weiteren Verlauf werden die Gegenargumente beleuchtet.</div></div>
+        <div class="new-word-item"><span class="new-word">abschließend</span><div class="new-example">Abschließend lässt sich festhalten, dass…</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ GİRİŞ ══════════════ -->
+<div id="giris" class="section">
+  <div class="section-header"><h2>Giriş Kalıpları</h2><p>Erörterung'un ilk paragrafı</p></div>
+  <div class="group">
+    <div class="group-label">Konuyu tanıtma</div>
+    <div class="cards">
+      <div class="card"><div class="card-top"><div class="kalip">In der heutigen Gesellschaft wird zunehmend diskutiert, ob …</div><span class="pill pill-c1">C1</span></div><div class="example">In der heutigen Gesellschaft wird zunehmend diskutiert, ob Ganztagsschulen sinnvoll sind.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Das Thema … gewinnt in der öffentlichen Debatte immer mehr an Bedeutung.</div><span class="pill pill-c1">C1</span></div><div class="example">Das Thema digitale Bildung gewinnt in der öffentlichen Debatte immer mehr an Bedeutung.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Kaum ein Thema polarisiert die Gesellschaft so sehr wie …</div><span class="pill pill-c1">C1</span></div><div class="example">Kaum ein Thema polarisiert die Gesellschaft so sehr wie die Frage nach Schuluniformen.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Die Frage, ob … , beschäftigt Experten und Laien gleichermaßen.</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ "gleichermaßen" tek başına C1 göstergesi sayılır.</div></div>
+    </div>
+  </div>
+  <div class="group">
+    <div class="group-label">Tezini açıklama</div>
+    <div class="cards">
+      <div class="card"><div class="card-top"><div class="kalip">Im Folgenden werde ich die verschiedenen Aspekte dieser Frage beleuchten und zu einer abschließenden Bewertung gelangen.</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ "beleuchten" ve "gelangen" → "erörtern/haben" yerine.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Nach einer Abwägung der Argumente vertrete ich die Ansicht, dass …</div><span class="pill pill-b2">B2</span></div><div class="example">Nach einer Abwägung der Argumente vertrete ich die Ansicht, dass dieses Modell mehr Vor- als Nachteile bietet.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PRO ══════════════ -->
+<div id="pro" class="section">
+  <div class="section-header"><h2>Pro Argüman Kalıpları</h2><p>Avantajları sunma ve güçlendirme</p></div>
+  <div class="group">
+    <div class="group-label">Argüman açma</div>
+    <div class="cards">
+      <div class="card"><div class="card-top"><div class="kalip">Ein wesentlicher Vorteil besteht darin, dass …</div><span class="pill pill-b2">B2</span></div><div class="example">Ein wesentlicher Vorteil besteht darin, dass berufstätige Eltern entlastet werden.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Befürworter argumentieren, dass … , was zweifellos dazu beiträgt, …</div><span class="pill pill-c1">C1</span></div><div class="example">Befürworter argumentieren, dass strukturierte Abläufe die Lernleistung verbessern, was zweifellos dazu beiträgt, Ungleichheiten abzubauen.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Nicht zu unterschätzen ist die Tatsache, dass …</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ İkincil ama güçlü argümanlar için kullan.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Für dieses Modell spricht in erster Linie, dass …</div><span class="pill pill-b2">B2</span></div></div>
+    </div>
+  </div>
+  <div class="group">
+    <div class="group-label">Argümanı derinleştirme</div>
+    <div class="cards">
+      <div class="card"><div class="card-top"><div class="kalip">Dies lässt sich dadurch erklären, dass … , weshalb …</div><span class="pill pill-c1">C1</span></div><div class="example">Dies lässt sich dadurch erklären, dass Kinder besser betreut werden, weshalb Eltern ihrer Arbeit ungestörter nachgehen können.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Daraus folgt, dass … , insofern als …</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ "insofern als" çok az kişi kullanır — puanlayıcıları etkiler.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ KONTRA ══════════════ -->
+<div id="kontra" class="section">
+  <div class="section-header"><h2>Kontra Argüman Kalıpları</h2><p>Dezavantajları sunma ve derinleştirme</p></div>
+  <div class="group">
+    <div class="group-label">Karşı argüman açma</div>
+    <div class="cards">
+      <div class="card"><div class="card-top"><div class="kalip">Andererseits darf nicht außer Acht gelassen werden, dass …</div><span class="pill pill-c1">C1</span></div><div class="example">Andererseits darf nicht außer Acht gelassen werden, dass Kinder Raum zur freien Entfaltung benötigen.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Kritisch zu betrachten ist jedoch, dass …</div><span class="pill pill-b2">B2</span></div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Ein nicht zu vernachlässigender Nachteil ist, dass …</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ "nicht zu vernachlässigender" — Partizip II kullanımı C1 göstergesi.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Gegner dieses Modells weisen darauf hin, dass …</div><span class="pill pill-b2">B2</span></div></div>
+    </div>
+  </div>
+  <div class="group">
+    <div class="group-label">Argümanı derinleştirme</div>
+    <div class="cards">
+      <div class="card"><div class="card-top"><div class="kalip">Dies führt unweigerlich dazu, dass …</div><span class="pill pill-c1">C1</span></div><div class="example">Dies führt unweigerlich dazu, dass kreative Entwicklungsphasen verloren gehen.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Hinzu kommt, dass … , sodass …</div><span class="pill pill-b2">B2</span></div><div class="example">Hinzu kommt, dass Kinder erschöpft sind, sodass kaum Energie für Hobbys bleibt.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ GEÇİŞ ══════════════ -->
+<div id="gecis" class="section">
+  <div class="section-header"><h2>Geçiş Kalıpları</h2><p>Paragraflar arası akıcı geçiş</p></div>
+  <div class="group">
+    <div class="group-label">Pro → Kontra geçiş</div>
+    <div class="cards wide">
+      <div class="card"><div class="card-top"><div class="kalip">Wenngleich die genannten Vorteile nicht zu leugnen sind, muss man dennoch bedenken, dass …</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ En güçlü geçiş kalıbı — "wenngleich" tek başına C1'e işaret eder.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">So überzeugend diese Argumente auch sein mögen, bleibt doch die Frage, ob …</div><span class="pill pill-c1">C1</span></div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Nichtsdestotrotz sollte man die Kehrseite der Medaille nicht vergessen.</div><span class="pill pill-b2">B2</span></div><div class="tip">⚑ "Kehrseite der Medaille" — idiom kullanımı B2/C1 sınırında iyi gösterge.</div></div>
+    </div>
+  </div>
+  <div class="group">
+    <div class="group-label">Kontra → Sonuç geçiş</div>
+    <div class="cards wide">
+      <div class="card"><div class="card-top"><div class="kalip">Angesichts dieser Überlegungen lässt sich festhalten, dass …</div><span class="pill pill-c1">C1</span></div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Vor diesem Hintergrund stellt sich die Frage, inwieweit …</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ "inwieweit" → "ob" yerine kullan, çok daha sofistike görünür.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ KANIL ══════════════ -->
+<div id="kanis" class="section">
+  <div class="section-header"><h2>Kanıt & Kaynak Kalıpları</h2><p>Çalışma, istatistik, uzman görüşü</p></div>
+  <div class="group">
+    <div class="group-label">Çalışma / istatistik sunma</div>
+    <div class="cards wide">
+      <div class="card"><div class="card-top"><div class="kalip">Laut aktuellen Forschungsergebnissen … , was darauf hindeutet, dass …</div><span class="pill pill-c1">C1</span></div><div class="example">Laut aktuellen Forschungsergebnissen verbringen Kinder an Ganztagsschulen weniger Zeit im Freien, was darauf hindeutet, dass ihre motorische Entwicklung beeinträchtigt werden könnte.</div><div class="tip">⚑ Uydurma kaynak yazma. "Laut aktuellen Forschungsergebnissen" güvenli ve yeterince güçlü.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Einer repräsentativen Studie zufolge …</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ "zufolge" ile başlayan ters sözcük dizisi — C1 dilbilgisi göstergesi.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Experten auf diesem Gebiet sind der Auffassung, dass …</div><span class="pill pill-b2">B2</span></div><div class="tip">⚑ "der Auffassung sein" → "denken/glauben" yerine.</div></div>
+    </div>
+  </div>
+  <div class="group">
+    <div class="group-label">Örnek verme</div>
+    <div class="cards">
+      <div class="card"><div class="card-top"><div class="kalip">Als anschauliches Beispiel lässt sich … anführen.</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ "Als Beispiel will ich … geben" YAZMA — bu kalıbı kullan.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Dies zeigt sich besonders deutlich am Beispiel von …</div><span class="pill pill-b2">B2</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SONUÇ ══════════════ -->
+<div id="sonuc" class="section">
+  <div class="section-header"><h2>Sonuç Kalıpları</h2><p>Erörterung'u kapatma</p></div>
+  <div class="group">
+    <div class="group-label">Sonuç açma</div>
+    <div class="cards wide">
+      <div class="card"><div class="card-top"><div class="kalip">Abschließend lässt sich festhalten, dass … , auch wenn …</div><span class="pill pill-c1">C1</span></div><div class="example">Abschließend lässt sich festhalten, dass Ganztagsschulen trotz ihrer Nachteile eine wichtige gesellschaftliche Funktion erfüllen, auch wenn die Freizeit der Kinder nicht vernachlässigt werden darf.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Alles in allem überwiegen meiner Einschätzung nach die Vorteile, da …</div><span class="pill pill-b2">B2</span></div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Unter Berücksichtigung aller Aspekte bin ich zu dem Schluss gekommen, dass …</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ "Unter Berücksichtigung" — Nominalisierung, C1 için mükemmel.</div></div>
+    </div>
+  </div>
+  <div class="group">
+    <div class="group-label">Güçlü kapanış cümlesi</div>
+    <div class="cards wide">
+      <div class="card"><div class="card-top"><div class="kalip">Es bleibt zu hoffen, dass … , damit …</div><span class="pill pill-c1">C1</span></div><div class="example">Es bleibt zu hoffen, dass Schulen künftig mehr Spielraum für individuelle Freizeitgestaltung einplanen, damit Kinder sich ganzheitlich entwickeln können.</div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Letztendlich liegt es an … , dafür zu sorgen, dass …</div><span class="pill pill-b2">B2</span></div></div>
+      <div class="card"><div class="card-top"><div class="kalip">Nur wenn … , kann langfristig eine nachhaltige Lösung gefunden werden.</div><span class="pill pill-c1">C1</span></div><div class="tip">⚑ "nur wenn" ile başlayan ters sözcük dizisi — güçlü kapanış etkisi.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ADJEKTİVLER ══════════════ -->
+<div id="adjektiv" class="section">
+  <div class="section-header"><h2>C1 Adjektivler</h2><p>Erörterung'da sık kullanılan güçlü sıfatlar — 90+</p></div>
+  <div class="search-wrap">
+    <input type="search" id="adj-search" placeholder="Adjektiv veya Türkçe anlam ara…" oninput="filterAdj(this.value)">
+  </div>
+
+  <div class="group">
+    <div class="group-label">Olumsuz / Eleştirel</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="besorgniserregend endişe"><div class="adj-word">besorgniserregend</div><div class="adj-meaning">endişe verici</div><div class="adj-example">Die Ergebnisse sind besorgniserregend.</div></div>
+      <div class="adj-card" data-word="bedenklich kaygı"><div class="adj-word">bedenklich</div><div class="adj-meaning">kaygı verici, şüpheli</div><div class="adj-example">Diese Entwicklung ist äußerst bedenklich.</div></div>
+      <div class="adj-card" data-word="fragwürdig tartışmalı"><div class="adj-word">fragwürdig</div><div class="adj-meaning">şüpheli, tartışmalı</div><div class="adj-example">Die Methode erscheint fragwürdig.</div></div>
+      <div class="adj-card" data-word="verheerend yıkıcı"><div class="adj-word">verheerend</div><div class="adj-meaning">yıkıcı, feci</div><div class="adj-example">Die Konsequenzen könnten verheerend sein.</div></div>
+      <div class="adj-card" data-word="nachteilig olumsuz"><div class="adj-word">nachteilig</div><div class="adj-meaning">dezavantajlı, olumsuz</div><div class="adj-example">Dies wirkt sich nachteilig auf die Entwicklung aus.</div></div>
+      <div class="adj-card" data-word="einschränkend kısıtlayıcı"><div class="adj-word">einschränkend</div><div class="adj-meaning">kısıtlayıcı</div><div class="adj-example">Solche Maßnahmen wirken einschränkend.</div></div>
+      <div class="adj-card" data-word="kontraproduktiv ters"><div class="adj-word">kontraproduktiv</div><div class="adj-meaning">ters tepki yaratan</div><div class="adj-example">Übermäßige Kontrolle ist kontraproduktiv.</div></div>
+      <div class="adj-card" data-word="unverhältnismäßig orantısız"><div class="adj-word">unverhältnismäßig</div><div class="adj-meaning">orantısız</div><div class="adj-example">Der Aufwand ist unverhältnismäßig groß.</div></div>
+      <div class="adj-card" data-word="alarmierend alarming tehlikeli"><div class="adj-word">alarmierend</div><div class="adj-meaning">alarm verici, tehlikeli</div><div class="adj-example">Die Zunahme psychischer Erkrankungen ist alarmierend.</div></div>
+      <div class="adj-card" data-word="gravierend ciddi ağır"><div class="adj-word">gravierend</div><div class="adj-meaning">ciddi, ağır sonuçları olan</div><div class="adj-example">Dies hat gravierende Folgen für das Bildungssystem.</div></div>
+      <div class="adj-card" data-word="problematisch sorunlu"><div class="adj-word">problematisch</div><div class="adj-meaning">sorunlu, problemli</div><div class="adj-example">Dieser Ansatz ist aus mehreren Gründen problematisch.</div></div>
+      <div class="adj-card" data-word="zweifelhaft şüpheli kuşkulu"><div class="adj-word">zweifelhaft</div><div class="adj-meaning">kuşkulu, şüpheli</div><div class="adj-example">Der Nutzen dieser Maßnahme bleibt zweifelhaft.</div></div>
+      <div class="adj-card" data-word="beeinträchtigend zararlı"><div class="adj-word">beeinträchtigend</div><div class="adj-meaning">olumsuz etkileyen, zararlı</div><div class="adj-example">Dies wirkt sich beeinträchtigend auf die Gesundheit aus.</div></div>
+      <div class="adj-card" data-word="abträglich zararlı aleyhte"><div class="adj-word">abträglich</div><div class="adj-meaning">zararlı, aleyhte</div><div class="adj-example">Zu viel Stress ist der Gesundheit abträglich.</div></div>
+      <div class="adj-card" data-word="überwältigend bunaltıcı aşırı"><div class="adj-word">überwältigend (negativ)</div><div class="adj-meaning">bunaltıcı, aşırı (olumsuz bağlamda)</div><div class="adj-example">Der Druck auf Schüler ist überwältigend.</div></div>
+      <div class="adj-card" data-word="riskant riskli tehlikeli"><div class="adj-word">riskant</div><div class="adj-meaning">riskli, tehlikeli</div><div class="adj-example">Diese Strategie erscheint äußerst riskant.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Olumlu / Destekleyici</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="förderlich faydalı"><div class="adj-word">förderlich</div><div class="adj-meaning">faydalı, geliştirici</div><div class="adj-example">Dies ist förderlich für die soziale Entwicklung.</div></div>
+      <div class="adj-card" data-word="wegweisend öncü yol gösterici"><div class="adj-word">wegweisend</div><div class="adj-meaning">yol gösterici, öncü</div><div class="adj-example">Dieses Modell ist wegweisend für die Zukunft.</div></div>
+      <div class="adj-card" data-word="nachhaltig sürdürülebilir"><div class="adj-word">nachhaltig</div><div class="adj-meaning">sürdürülebilir, kalıcı</div><div class="adj-example">Nur nachhaltige Lösungen führen zum Erfolg.</div></div>
+      <div class="adj-card" data-word="wirkungsvoll etkili"><div class="adj-word">wirkungsvoll</div><div class="adj-meaning">etkili</div><div class="adj-example">Diese Maßnahme ist besonders wirkungsvoll.</div></div>
+      <div class="adj-card" data-word="zielführend verimli amaca"><div class="adj-word">zielführend</div><div class="adj-meaning">amaca yönelik, verimli</div><div class="adj-example">Diese Strategie erscheint zielführend.</div></div>
+      <div class="adj-card" data-word="unerlässlich vazgeçilmez"><div class="adj-word">unerlässlich</div><div class="adj-meaning">vazgeçilmez</div><div class="adj-example">Teamarbeit ist in diesem Kontext unerlässlich.</div></div>
+      <div class="adj-card" data-word="erstrebenswert arzu hedef"><div class="adj-word">erstrebenswert</div><div class="adj-meaning">arzu edilir, hedeflenmesi gereken</div><div class="adj-example">Ein solches Ziel ist durchaus erstrebenswert.</div></div>
+      <div class="adj-card" data-word="unverzichtbar zorunlu"><div class="adj-word">unverzichtbar</div><div class="adj-meaning">vazgeçilmez, zorunlu</div><div class="adj-example">Bildung ist unverzichtbar für gesellschaftlichen Fortschritt.</div></div>
+      <div class="adj-card" data-word="konstruktiv yapıcı"><div class="adj-word">konstruktiv</div><div class="adj-meaning">yapıcı, olumlu katkı sağlayan</div><div class="adj-example">Ein konstruktiver Dialog ist dringend erforderlich.</div></div>
+      <div class="adj-card" data-word="vielversprechend umut verici"><div class="adj-word">vielversprechend</div><div class="adj-meaning">umut verici, çok şey vaat eden</div><div class="adj-example">Die ersten Ergebnisse sind vielversprechend.</div></div>
+      <div class="adj-card" data-word="zukunftsorientiert geleceğe yönelik"><div class="adj-word">zukunftsorientiert</div><div class="adj-meaning">geleceğe yönelik</div><div class="adj-example">Wir brauchen zukunftsorientierte Bildungskonzepte.</div></div>
+      <div class="adj-card" data-word="gewinnbringend kazançlı yararlı"><div class="adj-word">gewinnbringend</div><div class="adj-meaning">kazançlı, yararlı</div><div class="adj-example">Kooperation ist für alle Seiten gewinnbringend.</div></div>
+      <div class="adj-card" data-word="bahnbrechend çığır açan devrimsel"><div class="adj-word">bahnbrechend</div><div class="adj-meaning">çığır açan, devrimsel</div><div class="adj-example">Diese Studie liefert bahnbrechende Erkenntnisse.</div></div>
+      <div class="adj-card" data-word="bereichernd zenginleştirici"><div class="adj-word">bereichernd</div><div class="adj-meaning">zenginleştirici, katkı sağlayan</div><div class="adj-example">Kulturelle Vielfalt ist bereichernd für die Gesellschaft.</div></div>
+      <div class="adj-card" data-word="richtungsweisend belirleyici"><div class="adj-word">richtungsweisend</div><div class="adj-meaning">yön belirleyici</div><div class="adj-example">Dieses Urteil ist richtungsweisend für künftige Fälle.</div></div>
+      <div class="adj-card" data-word="effizient verimli etkin"><div class="adj-word">effizient</div><div class="adj-meaning">verimli, etkin</div><div class="adj-example">Ressourcen müssen effizienter eingesetzt werden.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Nötr / Analitik</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="weitreichend kapsamlı"><div class="adj-word">weitreichend</div><div class="adj-meaning">geniş kapsamlı</div><div class="adj-example">Dies hat weitreichende Konsequenzen für die Gesellschaft.</div></div>
+      <div class="adj-card" data-word="vielschichtig karmaşık katmanlı"><div class="adj-word">vielschichtig</div><div class="adj-meaning">çok katmanlı, karmaşık</div><div class="adj-example">Das Thema ist äußerst vielschichtig.</div></div>
+      <div class="adj-card" data-word="ausschlaggebend belirleyici kritik"><div class="adj-word">ausschlaggebend</div><div class="adj-meaning">belirleyici, kritik</div><div class="adj-example">Dieser Faktor ist ausschlaggebend für den Erfolg.</div></div>
+      <div class="adj-card" data-word="maßgeblich esas"><div class="adj-word">maßgeblich</div><div class="adj-meaning">belirleyici, esas</div><div class="adj-example">Eltern spielen eine maßgebliche Rolle bei der Erziehung.</div></div>
+      <div class="adj-card" data-word="grundlegend temel köklü"><div class="adj-word">grundlegend</div><div class="adj-meaning">temel, köklü</div><div class="adj-example">Eine grundlegende Reform ist notwendig.</div></div>
+      <div class="adj-card" data-word="tiefgreifend derin köklü"><div class="adj-word">tiefgreifend</div><div class="adj-meaning">derin, köklü (değişim için)</div><div class="adj-example">Die Auswirkungen sind tiefgreifend und langfristig.</div></div>
+      <div class="adj-card" data-word="umstritten tartışmalı"><div class="adj-word">umstritten</div><div class="adj-meaning">tartışmalı</div><div class="adj-example">Dieses Modell bleibt nach wie vor umstritten.</div></div>
+      <div class="adj-card" data-word="differenziert nüanslı ayrıntılı"><div class="adj-word">differenziert</div><div class="adj-meaning">ayrıntılı, nüanslı</div><div class="adj-example">Eine differenzierte Betrachtung ist hier notwendig.</div></div>
+      <div class="adj-card" data-word="erheblich kayda değer"><div class="adj-word">erheblich</div><div class="adj-meaning">önemli ölçüde, kayda değer</div><div class="adj-example">Dies führt zu erheblichen Einschränkungen.</div></div>
+      <div class="adj-card" data-word="substanziell özlü esaslı"><div class="adj-word">substanziell</div><div class="adj-meaning">özlü, esaslı</div><div class="adj-example">Es fehlt an substanziellen Belegen für diese These.</div></div>
+      <div class="adj-card" data-word="unbestreitbar tartışmasız"><div class="adj-word">unbestreitbar</div><div class="adj-meaning">tartışmasız</div><div class="adj-example">Der Nutzen ist unbestreitbar vorhanden.</div></div>
+      <div class="adj-card" data-word="vorrangig öncelikli"><div class="adj-word">vorrangig</div><div class="adj-meaning">öncelikli</div><div class="adj-example">Das vorrangige Ziel ist die Chancengleichheit.</div></div>
+      <div class="adj-card" data-word="widersprüchlich çelişkili"><div class="adj-word">widersprüchlich</div><div class="adj-meaning">çelişkili</div><div class="adj-example">Die Studienergebnisse sind widersprüchlich.</div></div>
+      <div class="adj-card" data-word="zweifellos şüphesiz"><div class="adj-word">zweifellos</div><div class="adj-meaning">şüphesiz (zarf olarak da)</div><div class="adj-example">Dies ist zweifellos ein Fortschritt.</div></div>
+      <div class="adj-card" data-word="gesellschaftlich relevant toplumsal"><div class="adj-word">gesellschaftlich relevant</div><div class="adj-meaning">toplumsal açıdan önemli</div><div class="adj-example">Dies ist ein gesellschaftlich relevantes Thema.</div></div>
+      <div class="adj-card" data-word="repräsentativ temsili"><div class="adj-word">repräsentativ</div><div class="adj-meaning">temsili, geneli yansıtan</div><div class="adj-example">Die Studie ist repräsentativ für die gesamte Bevölkerung.</div></div>
+      <div class="adj-card" data-word="ambivalent ikircikli çift yönlü"><div class="adj-word">ambivalent</div><div class="adj-meaning">ikircikli, çift yönlü</div><div class="adj-example">Die Haltung der Gesellschaft ist ambivalent.</div></div>
+      <div class="adj-card" data-word="kontrovers tartışmalı zıt"><div class="adj-word">kontrovers</div><div class="adj-meaning">tartışmalı, zıt görüşlerin olduğu</div><div class="adj-example">Das Thema wird kontrovers diskutiert.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Miktar / Yoğunluk (güçlendirici)</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="enorm büyük muazzam"><div class="adj-word">enorm</div><div class="adj-meaning">muazzam, çok büyük</div><div class="adj-example">Der Druck auf Lehrkräfte ist enorm gestiegen.</div></div>
+      <div class="adj-card" data-word="beträchtlich kayda değer önemli"><div class="adj-word">beträchtlich</div><div class="adj-meaning">kayda değer, önemli miktarda</div><div class="adj-example">Die Kosten sind beträchtlich gestiegen.</div></div>
+      <div class="adj-card" data-word="erheblich önemli ölçüde"><div class="adj-word">erheblich</div><div class="adj-meaning">önemli ölçüde</div><div class="adj-example">Die Situation hat sich erheblich verschlechtert.</div></div>
+      <div class="adj-card" data-word="drastisch sert keskin"><div class="adj-word">drastisch</div><div class="adj-meaning">sert, köklü, keskin</div><div class="adj-example">Die Maßnahmen wurden drastisch verschärft.</div></div>
+      <div class="adj-card" data-word="maßgeblich belirgin önemli ölçüde"><div class="adj-word">maßgeblich (als Adverb)</div><div class="adj-meaning">belirgin biçimde, önemli ölçüde</div><div class="adj-example">Dies trägt maßgeblich zur Verbesserung bei.</div></div>
+      <div class="adj-card" data-word="signifikant anlamlı belirgin"><div class="adj-word">signifikant</div><div class="adj-meaning">istatistiksel olarak anlamlı, belirgin</div><div class="adj-example">Es gibt signifikante Unterschiede zwischen den Gruppen.</div></div>
+      <div class="adj-card" data-word="merklich fark edilir belirgin"><div class="adj-word">merklich</div><div class="adj-meaning">fark edilir biçimde</div><div class="adj-example">Die Lebensqualität hat merklich abgenommen.</div></div>
+      <div class="adj-card" data-word="überdurchschnittlich ortalamanın üzerinde"><div class="adj-word">überdurchschnittlich</div><div class="adj-meaning">ortalamanın üzerinde</div><div class="adj-example">Diese Schüler zeigen überdurchschnittliche Leistungen.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Toplumsal / Sosyal bağlam için</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="sozial benachteiligt dezavantajlı"><div class="adj-word">sozial benachteiligt</div><div class="adj-meaning">sosyal olarak dezavantajlı</div><div class="adj-example">Sozial benachteiligte Kinder profitieren besonders.</div></div>
+      <div class="adj-card" data-word="chancengleich eşit fırsat"><div class="adj-word">chancengleich</div><div class="adj-meaning">eşit fırsata sahip</div><div class="adj-example">Eine chancengleiche Bildung ist das Ziel.</div></div>
+      <div class="adj-card" data-word="integrativ kapsayıcı"><div class="adj-word">integrativ</div><div class="adj-meaning">kapsayıcı, entegre edici</div><div class="adj-example">Ein integratives Schulsystem fördert alle Kinder.</div></div>
+      <div class="adj-card" data-word="inklusiv dahil edici"><div class="adj-word">inklusiv</div><div class="adj-meaning">dahil edici, kapsayıcı</div><div class="adj-example">Inklusive Bildung ist ein Menschenrecht.</div></div>
+      <div class="adj-card" data-word="strukturell yapısal"><div class="adj-word">strukturell</div><div class="adj-meaning">yapısal, sistemden kaynaklanan</div><div class="adj-example">Es handelt sich um ein strukturelles Problem.</div></div>
+      <div class="adj-card" data-word="institutionell kurumsal"><div class="adj-word">institutionell</div><div class="adj-meaning">kurumsal, kurumdan kaynaklanan</div><div class="adj-example">Institutionelle Reformen sind dringend nötig.</div></div>
+      <div class="adj-card" data-word="kollektiv toplu ortak"><div class="adj-word">kollektiv</div><div class="adj-meaning">toplu, ortak</div><div class="adj-example">Dies erfordert kollektives Handeln.</div></div>
+      <div class="adj-card" data-word="individuell bireysel kişisel"><div class="adj-word">individuell</div><div class="adj-meaning">bireysel, kişiye özgü</div><div class="adj-example">Individuelle Förderung ist entscheidend.</div></div>
+      <div class="adj-card" data-word="gesellschaftlich toplumsal"><div class="adj-word">gesellschaftlich</div><div class="adj-meaning">toplumsal</div><div class="adj-example">Dies hat gesellschaftliche Konsequenzen.</div></div>
+      <div class="adj-card" data-word="politisch siyasi"><div class="adj-word">politisch brisant</div><div class="adj-meaning">siyasi açıdan hassas/patlayıcı</div><div class="adj-example">Das Thema ist politisch brisant.</div></div>
+      <div class="adj-card" data-word="sozioökonomisch sosyoekonomik"><div class="adj-word">sozioökonomisch</div><div class="adj-meaning">sosyoekonomik</div><div class="adj-example">Sozioökonomische Faktoren spielen eine entscheidende Rolle.</div></div>
+      <div class="adj-card" data-word="demografisch demografik nüfus"><div class="adj-word">demografisch</div><div class="adj-meaning">demografik, nüfusla ilgili</div><div class="adj-example">Der demografische Wandel stellt neue Anforderungen.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Zaman / Süreç için</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="langfristig uzun vadeli"><div class="adj-word">langfristig</div><div class="adj-meaning">uzun vadeli</div><div class="adj-example">Langfristig überwiegen die Vorteile.</div></div>
+      <div class="adj-card" data-word="kurzfristig kısa vadeli"><div class="adj-word">kurzfristig</div><div class="adj-meaning">kısa vadeli</div><div class="adj-example">Kurzfristige Lösungen reichen nicht aus.</div></div>
+      <div class="adj-card" data-word="mittelfristig orta vadeli"><div class="adj-word">mittelfristig</div><div class="adj-meaning">orta vadeli</div><div class="adj-example">Mittelfristig sind Reformen unausweichlich.</div></div>
+      <div class="adj-card" data-word="dauerhaft kalıcı sürekli"><div class="adj-word">dauerhaft</div><div class="adj-meaning">kalıcı, sürekli</div><div class="adj-example">Nur dauerhafte Veränderungen bringen echten Fortschritt.</div></div>
+      <div class="adj-card" data-word="vorübergehend geçici"><div class="adj-word">vorübergehend</div><div class="adj-meaning">geçici, süreçte olan</div><div class="adj-example">Dies ist nur eine vorübergehende Lösung.</div></div>
+      <div class="adj-card" data-word="zeitgemäß çağdaş güncel"><div class="adj-word">zeitgemäß</div><div class="adj-meaning">çağa uygun, güncel</div><div class="adj-example">Das Bildungssystem muss zeitgemäßer werden.</div></div>
+      <div class="adj-card" data-word="zunehmend artan giderek"><div class="adj-word">zunehmend</div><div class="adj-meaning">giderek artan</div><div class="adj-example">Dies stellt ein zunehmend drängendes Problem dar.</div></div>
+      <div class="adj-card" data-word="anhaltend süregelen devam eden"><div class="adj-word">anhaltend</div><div class="adj-meaning">süregelen, devam eden</div><div class="adj-example">Der anhaltende Lehrermangel verschärft die Lage.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ FİİLLER ══════════════ -->
+<div id="verben" class="section">
+  <div class="section-header"><h2>C1 Fiiller</h2><p>Erörterung'da kullanabileceğin 100 güçlü fiil</p></div>
+  <div class="search-wrap">
+    <input type="search" id="verb-search" placeholder="Fiil veya Türkçe anlam ara…" oninput="filterVerb(this.value)">
+  </div>
+
+  <div class="group">
+    <div class="group-label">Argüman & İfade etme</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="darlegen açıklamak sunmak"><div class="adj-word">darlegen</div><div class="adj-meaning">açıklamak, ortaya koymak</div><div class="adj-example">Im Folgenden werde ich meine Position darlegen.</div></div>
+      <div class="adj-card" data-word="erläutern ayrıntılı açıklamak"><div class="adj-word">erläutern</div><div class="adj-meaning">ayrıntılı açıklamak</div><div class="adj-example">Ich möchte diesen Punkt näher erläutern.</div></div>
+      <div class="adj-card" data-word="veranschaulichen örnekle göstermek"><div class="adj-word">veranschaulichen</div><div class="adj-meaning">somutlaştırmak, örnekle göstermek</div><div class="adj-example">Dies lässt sich anhand eines Beispiels veranschaulichen.</div></div>
+      <div class="adj-card" data-word="verdeutlichen netleştirmek vurgulamak"><div class="adj-word">verdeutlichen</div><div class="adj-meaning">netleştirmek, vurgulamak</div><div class="adj-example">Dieses Beispiel verdeutlicht das Problem.</div></div>
+      <div class="adj-card" data-word="betonen vurgulamak altını çizmek"><div class="adj-word">betonen</div><div class="adj-meaning">vurgulamak, altını çizmek</div><div class="adj-example">Es ist zu betonen, dass dies kein Einzelfall ist.</div></div>
+      <div class="adj-card" data-word="hervorheben öne çıkarmak vurgulamak"><div class="adj-word">hervorheben</div><div class="adj-meaning">öne çıkarmak, özellikle belirtmek</div><div class="adj-example">Besonders hervorzuheben ist die Rolle der Eltern.</div></div>
+      <div class="adj-card" data-word="unterstreichen altını çizmek pekiştirmek"><div class="adj-word">unterstreichen</div><div class="adj-meaning">altını çizmek, pekiştirmek</div><div class="adj-example">Dies unterstreicht die Notwendigkeit von Reformen.</div></div>
+      <div class="adj-card" data-word="anführen örnek vermek ileri sürmek"><div class="adj-word">anführen</div><div class="adj-meaning">örnek vermek, ileri sürmek</div><div class="adj-example">Als Beleg lässt sich folgendes anführen.</div></div>
+      <div class="adj-card" data-word="aufzeigen göstermek ortaya koymak"><div class="adj-word">aufzeigen</div><div class="adj-meaning">göstermek, ortaya koymak</div><div class="adj-example">Die Studie zeigt deutliche Mängel auf.</div></div>
+      <div class="adj-card" data-word="schildern betimlemek aktarmak"><div class="adj-word">schildern</div><div class="adj-meaning">betimlemek, ayrıntılı aktarmak</div><div class="adj-example">Er schilderte die Situation sehr anschaulich.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Analiz & Değerlendirme</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="analysieren analiz etmek incelemek"><div class="adj-word">analysieren</div><div class="adj-meaning">analiz etmek, incelemek</div><div class="adj-example">Es gilt, die Ursachen genau zu analysieren.</div></div>
+      <div class="adj-card" data-word="beleuchten ışık tutmak incelemek"><div class="adj-word">beleuchten</div><div class="adj-meaning">ışık tutmak, ele almak</div><div class="adj-example">Ich möchte beide Seiten beleuchten.</div></div>
+      <div class="adj-card" data-word="hinterfragen sorgulamak irdelemek"><div class="adj-word">hinterfragen</div><div class="adj-meaning">sorgulamak, irdelemek</div><div class="adj-example">Man sollte diese Annahme kritisch hinterfragen.</div></div>
+      <div class="adj-card" data-word="abwägen tartmak değerlendirmek"><div class="adj-word">abwägen</div><div class="adj-meaning">tartmak, pros ve konsları değerlendirmek</div><div class="adj-example">Es gilt, Vor- und Nachteile sorgfältig abzuwägen.</div></div>
+      <div class="adj-card" data-word="einschätzen değerlendirmek tahmin etmek"><div class="adj-word">einschätzen</div><div class="adj-meaning">değerlendirmek, tahmin etmek</div><div class="adj-example">Die Situation lässt sich schwer einschätzen.</div></div>
+      <div class="adj-card" data-word="bewerten değer biçmek puanlamak"><div class="adj-word">bewerten</div><div class="adj-meaning">değer biçmek, değerlendirmek</div><div class="adj-example">Dies ist positiv zu bewerten.</div></div>
+      <div class="adj-card" data-word="einordnen sınıflandırmak bağlama oturtmak"><div class="adj-word">einordnen</div><div class="adj-meaning">bağlama oturtmak, sınıflandırmak</div><div class="adj-example">Dieses Ergebnis lässt sich schwer einordnen.</div></div>
+      <div class="adj-card" data-word="überprüfen doğrulamak kontrol etmek"><div class="adj-word">überprüfen</div><div class="adj-meaning">doğrulamak, kontrol etmek</div><div class="adj-example">Diese These muss kritisch überprüft werden.</div></div>
+      <div class="adj-card" data-word="differenzieren ayrım yapmak nüans katmak"><div class="adj-word">differenzieren</div><div class="adj-meaning">ayrım yapmak, nüans katmak</div><div class="adj-example">Man muss hier stärker differenzieren.</div></div>
+      <div class="adj-card" data-word="reflektieren yansıtmak derinlemesine düşünmek"><div class="adj-word">reflektieren</div><div class="adj-meaning">derinlemesine düşünmek, yansıtmak</div><div class="adj-example">Es ist wichtig, diesen Aspekt zu reflektieren.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Neden-Sonuç & Etki</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="bewirken yol açmak neden olmak"><div class="adj-word">bewirken</div><div class="adj-meaning">yol açmak, neden olmak</div><div class="adj-example">Dies bewirkt eine nachhaltige Verbesserung.</div></div>
+      <div class="adj-card" data-word="hervorrufen tetiklemek ortaya çıkarmak"><div class="adj-word">hervorrufen</div><div class="adj-meaning">tetiklemek, ortaya çıkarmak</div><div class="adj-example">Stress kann ernsthafte Erkrankungen hervorrufen.</div></div>
+      <div class="adj-card" data-word="beeinflussen etkilemek"><div class="adj-word">beeinflussen</div><div class="adj-meaning">etkilemek</div><div class="adj-example">Medien beeinflussen das Weltbild junger Menschen.</div></div>
+      <div class="adj-card" data-word="beeinträchtigen olumsuz etkilemek zarar vermek"><div class="adj-word">beeinträchtigen</div><div class="adj-meaning">olumsuz etkilemek, zarar vermek</div><div class="adj-example">Dies beeinträchtigt die Lebensqualität erheblich.</div></div>
+      <div class="adj-card" data-word="fördern desteklemek geliştirmek"><div class="adj-word">fördern</div><div class="adj-meaning">desteklemek, geliştirmek, teşvik etmek</div><div class="adj-example">Das Programm fördert kreatives Denken.</div></div>
+      <div class="adj-card" data-word="hemmen engellemek frenlemek"><div class="adj-word">hemmen</div><div class="adj-meaning">engellemek, frenlemek</div><div class="adj-example">Bürokratie hemmt den Fortschritt.</div></div>
+      <div class="adj-card" data-word="begünstigen kolaylaştırmak avantaj sağlamak"><div class="adj-word">begünstigen</div><div class="adj-meaning">kolaylaştırmak, avantaj sağlamak</div><div class="adj-example">Dieses System begünstigt sozial privilegierte Familien.</div></div>
+      <div class="adj-card" data-word="verschärfen şiddetlendirmek kötüleştirmek"><div class="adj-word">verschärfen</div><div class="adj-meaning">şiddetlendirmek, kötüleştirmek</div><div class="adj-example">Die Krise verschärft bestehende Ungleichheiten.</div></div>
+      <div class="adj-card" data-word="verringern azaltmak düşürmek"><div class="adj-word">verringern</div><div class="adj-meaning">azaltmak, düşürmek</div><div class="adj-example">Dies verringert die Chancen benachteiligter Kinder.</div></div>
+      <div class="adj-card" data-word="steigern artırmak yükseltmek"><div class="adj-word">steigern</div><div class="adj-meaning">artırmak, yükseltmek</div><div class="adj-example">Sport steigert nachweislich die Lernleistung.</div></div>
+      <div class="adj-card" data-word="beitragen katkıda bulunmak"><div class="adj-word">beitragen (zu)</div><div class="adj-meaning">katkıda bulunmak</div><div class="adj-example">Dies trägt zur Lösung des Problems bei.</div></div>
+      <div class="adj-card" data-word="führen yol açmak götürmek"><div class="adj-word">führen (zu)</div><div class="adj-meaning">yol açmak, -e götürmek</div><div class="adj-example">Übermäßiger Druck führt zu psychischen Problemen.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">İddia & Kanıtlama</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="behaupten iddia etmek öne sürmek"><div class="adj-word">behaupten</div><div class="adj-meaning">iddia etmek, öne sürmek</div><div class="adj-example">Kritiker behaupten, dass dieses Modell scheitert.</div></div>
+      <div class="adj-card" data-word="belegen kanıtlamak desteklemek"><div class="adj-word">belegen</div><div class="adj-meaning">kanıtlamak, belgesiyle desteklemek</div><div class="adj-example">Studien belegen diesen Zusammenhang eindeutig.</div></div>
+      <div class="adj-card" data-word="nachweisen ispat etmek göstermek"><div class="adj-word">nachweisen</div><div class="adj-meaning">ispat etmek, göstermek</div><div class="adj-example">Es lässt sich nachweisen, dass die Maßnahme wirkt.</div></div>
+      <div class="adj-card" data-word="widerlegen çürütmek yalanlamak"><div class="adj-word">widerlegen</div><div class="adj-meaning">çürütmek, yalanlamak</div><div class="adj-example">Dieses Argument lässt sich leicht widerlegen.</div></div>
+      <div class="adj-card" data-word="bestätigen doğrulamak teyit etmek"><div class="adj-word">bestätigen</div><div class="adj-meaning">doğrulamak, teyit etmek</div><div class="adj-example">Diese Zahlen bestätigen die These.</div></div>
+      <div class="adj-card" data-word="bezweifeln şüphe duymak sorgulamak"><div class="adj-word">bezweifeln</div><div class="adj-meaning">şüphe duymak, sorgulamak</div><div class="adj-example">Es lässt sich bezweifeln, ob dies langfristig funktioniert.</div></div>
+      <div class="adj-card" data-word="verdeutlichen kanıtlamak açıkça göstermek"><div class="adj-word">belegen (mit Daten)</div><div class="adj-meaning">veriyle desteklemek</div><div class="adj-example">Dies lässt sich mit aktuellen Daten belegen.</div></div>
+      <div class="adj-card" data-word="schlussfolgern sonuç çıkarmak"><div class="adj-word">schlussfolgern</div><div class="adj-meaning">sonuç çıkarmak</div><div class="adj-example">Daraus lässt sich schlussfolgern, dass Reformen nötig sind.</div></div>
+      <div class="adj-card" data-word="ableiten çıkarım yapmak türetmek"><div class="adj-word">ableiten</div><div class="adj-meaning">çıkarım yapmak, türetmek</div><div class="adj-example">Daraus lässt sich eine klare Schlussfolgerung ableiten.</div></div>
+      <div class="adj-card" data-word="verweisen atıfta bulunmak göndermek"><div class="adj-word">verweisen (auf)</div><div class="adj-meaning">atıfta bulunmak, göndermek</div><div class="adj-example">An dieser Stelle sei auf aktuelle Forschungen verwiesen.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Talep & Çözüm önerme</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="fordern talep etmek istemek"><div class="adj-word">fordern</div><div class="adj-meaning">talep etmek, istemek</div><div class="adj-example">Experten fordern grundlegende Reformen.</div></div>
+      <div class="adj-card" data-word="einfordern hakkını istemek talep etmek"><div class="adj-word">einfordern</div><div class="adj-meaning">hakkını istemek, ısrarla talep etmek</div><div class="adj-example">Eltern sollten mehr Mitsprache einfordern.</div></div>
+      <div class="adj-card" data-word="vorschlagen önermek teklif etmek"><div class="adj-word">vorschlagen</div><div class="adj-meaning">önermek, teklif etmek</div><div class="adj-example">Es wird vorgeschlagen, das System zu reformieren.</div></div>
+      <div class="adj-card" data-word="empfehlen tavsiye etmek önermek"><div class="adj-word">empfehlen</div><div class="adj-meaning">tavsiye etmek, önermek</div><div class="adj-example">Es empfiehlt sich, frühzeitig zu handeln.</div></div>
+      <div class="adj-card" data-word="anstreben hedeflemek amaçlamak"><div class="adj-word">anstreben</div><div class="adj-meaning">hedeflemek, amaçlamak</div><div class="adj-example">Man sollte eine ausgewogene Lösung anstreben.</div></div>
+      <div class="adj-card" data-word="gewährleisten güvence altına almak sağlamak"><div class="adj-word">gewährleisten</div><div class="adj-meaning">güvence altına almak, sağlamak</div><div class="adj-example">Der Staat muss Chancengleichheit gewährleisten.</div></div>
+      <div class="adj-card" data-word="sicherstellen sağlamak garanti altına almak"><div class="adj-word">sicherstellen</div><div class="adj-meaning">sağlamak, garanti altına almak</div><div class="adj-example">Es muss sichergestellt werden, dass niemand benachteiligt wird.</div></div>
+      <div class="adj-card" data-word="berücksichtigen göz önünde bulundurmak dikkate almak"><div class="adj-word">berücksichtigen</div><div class="adj-meaning">göz önünde bulundurmak, dikkate almak</div><div class="adj-example">Dabei müssen individuelle Unterschiede berücksichtigt werden.</div></div>
+      <div class="adj-card" data-word="maßnehmen önlem almak tedbir almak"><div class="adj-word">Maßnahmen ergreifen</div><div class="adj-meaning">önlem almak, adım atmak</div><div class="adj-example">Es ist dringend geboten, Maßnahmen zu ergreifen.</div></div>
+      <div class="adj-card" data-word="umsetzen hayata geçirmek uygulamak"><div class="adj-word">umsetzen</div><div class="adj-meaning">hayata geçirmek, uygulamak</div><div class="adj-example">Diese Ideen müssen endlich umgesetzt werden.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Karşılaştırma & İlişkilendirme</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="vergleichen karşılaştırmak"><div class="adj-word">vergleichen</div><div class="adj-meaning">karşılaştırmak</div><div class="adj-example">Vergleicht man beide Modelle, so fällt auf, dass…</div></div>
+      <div class="adj-card" data-word="gegenüberstellen karşıt koymak mukayese etmek"><div class="adj-word">gegenüberstellen</div><div class="adj-meaning">karşıt koymak, mukayese etmek</div><div class="adj-example">Diese Ergebnisse lassen sich den bisherigen Erkenntnissen gegenüberstellen.</div></div>
+      <div class="adj-card" data-word="unterscheiden ayırt etmek fark görmek"><div class="adj-word">unterscheiden</div><div class="adj-meaning">ayırt etmek, fark görmek</div><div class="adj-example">Man muss zwischen Ursache und Wirkung unterscheiden.</div></div>
+      <div class="adj-card" data-word="zusammenhängen ilgili olmak bağlantılı"><div class="adj-word">zusammenhängen (mit)</div><div class="adj-meaning">bağlantılı olmak, ilgili olmak</div><div class="adj-example">Dies hängt eng mit dem sozialen Umfeld zusammen.</div></div>
+      <div class="adj-card" data-word="widerspiegeln yansıtmak göstermek"><div class="adj-word">widerspiegeln</div><div class="adj-meaning">yansıtmak, göstermek</div><div class="adj-example">Diese Zahlen spiegeln die Realität wider.</div></div>
+      <div class="adj-card" data-word="entsprechen uymak karşılık gelmek"><div class="adj-word">entsprechen</div><div class="adj-meaning">uymak, karşılık gelmek</div><div class="adj-example">Dies entspricht nicht den aktuellen Forschungsergebnissen.</div></div>
+      <div class="adj-card" data-word="übereinstimmen örtüşmek uyuşmak"><div class="adj-word">übereinstimmen</div><div class="adj-meaning">örtüşmek, uyuşmak</div><div class="adj-example">Diese Aussage stimmt mit den Daten überein.</div></div>
+      <div class="adj-card" data-word="abweichen farklılaşmak sapmak"><div class="adj-word">abweichen (von)</div><div class="adj-meaning">farklılaşmak, sapmak</div><div class="adj-example">Dieses Ergebnis weicht stark vom Durchschnitt ab.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Sosyal & Toplumsal süreçler</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="prägen şekillendirmek etkilemek"><div class="adj-word">prägen</div><div class="adj-meaning">şekillendirmek, damgasını vurmak</div><div class="adj-example">Kindheitserfahrungen prägen die Persönlichkeit nachhaltig.</div></div>
+      <div class="adj-card" data-word="belasten yük olmak zorlaştırmak"><div class="adj-word">belasten</div><div class="adj-meaning">yük olmak, zorlaştırmak</div><div class="adj-example">Die Situation belastet Familien stark.</div></div>
+      <div class="adj-card" data-word="entlasten yükünü hafifletmek rahatlatmak"><div class="adj-word">entlasten</div><div class="adj-meaning">yükünü hafifletmek, rahatlatmak</div><div class="adj-example">Ganztagsschulen entlasten berufstätige Eltern.</div></div>
+      <div class="adj-card" data-word="benachteiligen dezavantajlı bırakmak ayrımcılık"><div class="adj-word">benachteiligen</div><div class="adj-meaning">dezavantajlı bırakmak, ayrımcılık yapmak</div><div class="adj-example">Das System benachteiligt einkommensschwache Familien.</div></div>
+      <div class="adj-card" data-word="begünstigen avantaj sağlamak kayırmak"><div class="adj-word">begünstigen</div><div class="adj-meaning">avantaj sağlamak, kayırmak</div><div class="adj-example">Dieses System begünstigt Kinder aus wohlhabenden Familien.</div></div>
+      <div class="adj-card" data-word="integrieren entegre etmek dahil etmek"><div class="adj-word">integrieren</div><div class="adj-meaning">entegre etmek, dahil etmek</div><div class="adj-example">Kinder mit Förderbedarf sollten integriert werden.</div></div>
+      <div class="adj-card" data-word="ausschließen dışlamak hariç tutmak"><div class="adj-word">ausschließen</div><div class="adj-meaning">dışlamak, hariç tutmak</div><div class="adj-example">Niemand sollte vom Bildungssystem ausgeschlossen werden.</div></div>
+      <div class="adj-card" data-word="überfordern aşırı yüklemek kapasitesini aşmak"><div class="adj-word">überfordern</div><div class="adj-meaning">aşırı yüklemek, kapasitesini aşmak</div><div class="adj-example">Zu viele Anforderungen überfordern die Schüler.</div></div>
+      <div class="adj-card" data-word="einschränken kısıtlamak sınırlandırmak"><div class="adj-word">einschränken</div><div class="adj-meaning">kısıtlamak, sınırlandırmak</div><div class="adj-example">Dies schränkt die persönliche Freiheit erheblich ein.</div></div>
+      <div class="adj-card" data-word="vernachlässigen ihmal etmek göz ardı etmek"><div class="adj-word">vernachlässigen</div><div class="adj-meaning">ihmal etmek, göz ardı etmek</div><div class="adj-example">Die emotionale Entwicklung darf nicht vernachlässigt werden.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Pasif yapılar — DSD2'de C1 göstergesi</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="lassen sich infinitiv yapılabilir edilebilir"><div class="adj-word">sich … lassen + Infinitiv</div><div class="adj-meaning">edilebilmek (güçlü pasif alternatifi)</div><div class="adj-example">Dies lässt sich nicht leugnen. / Dies lässt sich belegen.</div></div>
+      <div class="adj-card" data-word="ist zu infinitiv zorunlu mümkün"><div class="adj-word">ist zu + Infinitiv</div><div class="adj-meaning">yapılmalı / yapılabilir</div><div class="adj-example">Es ist zu betonen, dass… / Es ist festzuhalten, dass…</div></div>
+      <div class="adj-card" data-word="gilt es zorunluluk gereklilik"><div class="adj-word">Es gilt zu + Infinitiv</div><div class="adj-meaning">-mek gerekmektedir</div><div class="adj-example">Es gilt, alle Aspekte zu berücksichtigen.</div></div>
+      <div class="adj-card" data-word="bleibt abzuwarten göreceğiz zamanla belli olur"><div class="adj-word">Es bleibt abzuwarten, ob…</div><div class="adj-meaning">zamanla görülecek, belli olmaz</div><div class="adj-example">Es bleibt abzuwarten, ob diese Maßnahmen wirken.</div></div>
+      <div class="adj-card" data-word="sei darauf hingewiesen dikkat edilmeli belirtilmeli"><div class="adj-word">Es sei darauf hingewiesen, dass…</div><div class="adj-meaning">belirtmek gerekir ki (resmi)</div><div class="adj-example">Es sei darauf hingewiesen, dass die Datenlage begrenzt ist.</div></div>
+      <div class="adj-card" data-word="lässt sich feststellen tespit edilebilir görülmektedir"><div class="adj-word">Es lässt sich feststellen, dass…</div><div class="adj-meaning">tespit edilebilir ki, görülmektedir</div><div class="adj-example">Es lässt sich feststellen, dass der Trend zunimmt.</div></div>
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<footer>
+  <span>DSD2 · C1 Dil Bankası · Erörterung Rehberi</span>
+  <span>65+ kalıp · 90+ adjektiv · 100 fiil · 60+ nominalisierung · 25 bağlaç</span>
+</footer>
+
+<!-- NOMİNALİSİERUNGEN SECTION — placed before script so it's in main flow -->
+<script>
+// section injected via JS to keep HTML clean
+document.addEventListener('DOMContentLoaded', function() {
+  var main = document.querySelector('main');
+  var nomHTML = `
+<div id="nominal" class="section">
+  <div class="section-header"><h2>Nominalisierungen</h2><p>Fiil ve sıfatlardan isim türetme — C1'in en güçlü işareti</p></div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.75rem;">
+    <p style="font-size:13px;color:var(--muted);line-height:1.7;">
+      <span style="color:var(--accent);font-weight:500;">Neden bu kadar önemli?</span> — DSD2 puanlayıcıları Nominalisierungen kullanımını doğrudan C1 dil seviyesi göstergesi sayar.
+      Fiil cümlesi yazmak B1/B2, aynı fikri isim grubuyla ifade etmek C1'dir.<br>
+      <span style="color:var(--accent3);font-family:'DM Mono',monospace;font-size:12px;">✗ B1:</span> <em style="color:var(--muted);">weil die Eltern arbeiten</em> &nbsp;→&nbsp;
+      <span style="color:var(--accent2);font-family:'DM Mono',monospace;font-size:12px;">✓ C1:</span> <em style="color:var(--muted);">aufgrund der Berufstätigkeit der Eltern</em>
+    </p>
+  </div>
+
+  <div class="search-wrap">
+    <input type="search" id="nom-search" placeholder="Fiil, isim veya Türkçe anlam ara…" oninput="filterNom(this.value)">
+  </div>
+
+  <div class="group">
+    <div class="group-label">Temel dönüşüm kalıbı — Fiil → İsim</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="analysieren analyse analiz"><div class="adj-word">analysieren → die Analyse</div><div class="adj-meaning">analiz etmek → analiz</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> weil man es analysiert<br><span style="color:var(--accent2);font-size:11px;">✓</span> im Rahmen der Analyse</div></div>
+      <div class="adj-card" data-word="diskutieren diskussion tartışma"><div class="adj-word">diskutieren → die Diskussion</div><div class="adj-meaning">tartışmak → tartışma</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> weil man es diskutiert<br><span style="color:var(--accent2);font-size:11px;">✓</span> im Mittelpunkt der Diskussion</div></div>
+      <div class="adj-card" data-word="entlasten entlastung rahatlatma"><div class="adj-word">entlasten → die Entlastung</div><div class="adj-meaning">rahatlatmak → rahatlama</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> weil Eltern entlastet werden<br><span style="color:var(--accent2);font-size:11px;">✓</span> zur Entlastung der Eltern</div></div>
+      <div class="adj-card" data-word="fördern förderung destekleme teşvik"><div class="adj-word">fördern → die Förderung</div><div class="adj-meaning">desteklemek → destek</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> damit Kinder gefördert werden<br><span style="color:var(--accent2);font-size:11px;">✓</span> zur gezielten Förderung der Kinder</div></div>
+      <div class="adj-card" data-word="einschränken einschränkung kısıtlama"><div class="adj-word">einschränken → die Einschränkung</div><div class="adj-meaning">kısıtlamak → kısıtlama</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> weil die Freiheit eingeschränkt wird<br><span style="color:var(--accent2);font-size:11px;">✓</span> die erhebliche Einschränkung der Freiheit</div></div>
+      <div class="adj-card" data-word="verbessern verbesserung iyileştirme"><div class="adj-word">verbessern → die Verbesserung</div><div class="adj-meaning">iyileştirmek → iyileştirme</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> damit es besser wird<br><span style="color:var(--accent2);font-size:11px;">✓</span> eine nachhaltige Verbesserung der Lage</div></div>
+      <div class="adj-card" data-word="entwickeln entwicklung gelişme"><div class="adj-word">sich entwickeln → die Entwicklung</div><div class="adj-meaning">gelişmek → gelişme</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> wie es sich entwickelt<br><span style="color:var(--accent2);font-size:11px;">✓</span> die zunehmende Entwicklung dieser Tendenz</div></div>
+      <div class="adj-card" data-word="berücksichtigen berücksichtigung göz önünde bulundurma"><div class="adj-word">berücksichtigen → die Berücksichtigung</div><div class="adj-meaning">dikkate almak → dikkate alınması</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> wenn man alles berücksichtigt<br><span style="color:var(--accent2);font-size:11px;">✓</span> unter Berücksichtigung aller Aspekte</div></div>
+      <div class="adj-card" data-word="durchführen durchführung yürütme uygulama"><div class="adj-word">durchführen → die Durchführung</div><div class="adj-meaning">yürütmek → yürütme</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> nachdem die Studie durchgeführt wurde<br><span style="color:var(--accent2);font-size:11px;">✓</span> nach Durchführung der Studie</div></div>
+      <div class="adj-card" data-word="umsetzten umsetzung hayata geçirme"><div class="adj-word">umsetzen → die Umsetzung</div><div class="adj-meaning">uygulamak → uygulama</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> damit es umgesetzt wird<br><span style="color:var(--accent2);font-size:11px;">✓</span> für eine erfolgreiche Umsetzung</div></div>
+      <div class="adj-card" data-word="anerkennen anerkennung tanıma kabul"><div class="adj-word">anerkennen → die Anerkennung</div><div class="adj-meaning">tanımak, kabul etmek → tanınma</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> dass es anerkannt wird<br><span style="color:var(--accent2);font-size:11px;">✓</span> die gesellschaftliche Anerkennung</div></div>
+      <div class="adj-card" data-word="belasten belastung yük baskı"><div class="adj-word">belasten → die Belastung</div><div class="adj-meaning">yük olmak → yük, baskı</div><div class="adj-example"><span style="color:var(--accent3);font-size:11px;">✗</span> weil Schüler belastet werden<br><span style="color:var(--accent2);font-size:11px;">✓</span> die psychische Belastung der Schüler</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Güçlü Nominalisierung kalıpları — doğrudan kullan</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="im hinblick auf açısından bakıldığında"><div class="adj-word">im Hinblick auf + Akk.</div><div class="adj-meaning">… açısından bakıldığında</div><div class="adj-example">Im Hinblick auf die Chancengleichheit ist dies problematisch.</div></div>
+      <div class="adj-card" data-word="aufgrund yüzünden nedeniyle"><div class="adj-word">aufgrund + Gen.</div><div class="adj-meaning">… nedeniyle, … yüzünden</div><div class="adj-example">Aufgrund der hohen Belastung sinkt die Motivation.</div></div>
+      <div class="adj-card" data-word="angesichts karşısında göz önüne alındığında"><div class="adj-word">angesichts + Gen.</div><div class="adj-meaning">… göz önüne alındığında</div><div class="adj-example">Angesichts dieser Entwicklung ist Handeln geboten.</div></div>
+      <div class="adj-card" data-word="infolge sonucunda dolayısıyla"><div class="adj-word">infolge + Gen.</div><div class="adj-meaning">… sonucunda, … dolayısıyla</div><div class="adj-example">Infolge mangelnder Ressourcen scheitern viele Projekte.</div></div>
+      <div class="adj-card" data-word="im rahmen çerçevesinde kapsamında"><div class="adj-word">im Rahmen + Gen.</div><div class="adj-meaning">… çerçevesinde, … kapsamında</div><div class="adj-example">Im Rahmen dieser Debatte ist zu beachten, dass…</div></div>
+      <div class="adj-card" data-word="unter berücksichtigung dikkate alarak göz önünde bulundurarak"><div class="adj-word">unter Berücksichtigung + Gen.</div><div class="adj-meaning">… dikkate alarak</div><div class="adj-example">Unter Berücksichtigung aller Faktoren überwiegen die Vorteile.</div></div>
+      <div class="adj-card" data-word="im zuge gidişatında sürecinde"><div class="adj-word">im Zuge + Gen.</div><div class="adj-meaning">… sürecinde, … gidişatında</div><div class="adj-example">Im Zuge der Digitalisierung verändern sich Berufsbilder.</div></div>
+      <div class="adj-card" data-word="mit blick auf bakıldığında açısından"><div class="adj-word">mit Blick auf + Akk.</div><div class="adj-meaning">… göz önünde tutulduğunda</div><div class="adj-example">Mit Blick auf die Zukunft sind Reformen unerlässlich.</div></div>
+      <div class="adj-card" data-word="vor dem hintergrund arka planında bağlamında"><div class="adj-word">vor dem Hintergrund + Gen.</div><div class="adj-meaning">… bağlamında, arka planında</div><div class="adj-example">Vor dem Hintergrund aktueller Studien ist dies kritisch.</div></div>
+      <div class="adj-card" data-word="in anbetracht göz önünde bulundurulduğunda"><div class="adj-word">in Anbetracht + Gen.</div><div class="adj-meaning">… göz önünde bulundurulduğunda</div><div class="adj-example">In Anbetracht der Komplexität des Themas ist Vorsicht geboten.</div></div>
+      <div class="adj-card" data-word="trotz rağmen karşın"><div class="adj-word">trotz + Gen.</div><div class="adj-meaning">… rağmen, … karşın</div><div class="adj-example">Trotz der Nachteile überwiegen die positiven Aspekte.</div></div>
+      <div class="adj-card" data-word="mangels yokluğundan yetersizliğinden"><div class="adj-word">mangels + Gen.</div><div class="adj-meaning">… yokluğundan, … yetersizliğinden</div><div class="adj-example">Mangels ausreichender Ressourcen scheitern viele Reformen.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Sıfat → İsim türetme (das + Adj. als Nomen)</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="das wesentliche önemli olan esas olan"><div class="adj-word">das Wesentliche</div><div class="adj-meaning">önemli olan, esas olan</div><div class="adj-example">Das Wesentliche an dieser Debatte ist die Frage der Gleichheit.</div></div>
+      <div class="adj-card" data-word="das entscheidende belirleyici olan kritik"><div class="adj-word">das Entscheidende</div><div class="adj-meaning">belirleyici olan, kritik nokta</div><div class="adj-example">Das Entscheidende ist nicht das Ergebnis, sondern der Prozess.</div></div>
+      <div class="adj-card" data-word="das problematische sorunlu olan sıkıntılı"><div class="adj-word">das Problematische</div><div class="adj-meaning">sorunlu olan yan</div><div class="adj-example">Das Problematische an diesem Ansatz ist die fehlende Evidenz.</div></div>
+      <div class="adj-card" data-word="das positive olumlu olan avantaj"><div class="adj-word">das Positive / das Negative</div><div class="adj-meaning">olumlu / olumsuz yan</div><div class="adj-example">Das Positive an diesem Modell ist die Flexibilität.</div></div>
+      <div class="adj-card" data-word="das bemerkenswerte dikkat çekici olan ilginç"><div class="adj-word">das Bemerkenswerte</div><div class="adj-meaning">dikkat çekici olan, ilginç nokta</div><div class="adj-example">Das Bemerkenswerte an dieser Studie ist das Ausmaß der Wirkung.</div></div>
+      <div class="adj-card" data-word="das bedenkliche kaygı verici olan endişe"><div class="adj-word">das Bedenkliche</div><div class="adj-meaning">kaygı verici olan yan</div><div class="adj-example">Das Bedenkliche an diesem Trend ist seine Beschleunigung.</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-label">Sık kullanılan bileşik isimler — tek kelimeyle C1 etkisi</div>
+    <div class="adj-grid">
+      <div class="adj-card" data-word="chancengleichheit fırsat eşitliği"><div class="adj-word">die Chancengleichheit</div><div class="adj-meaning">fırsat eşitliği</div><div class="adj-example">Chancengleichheit im Bildungssystem ist noch nicht erreicht.</div></div>
+      <div class="adj-card" data-word="selbstbestimmung özerklik kendi kararını verme"><div class="adj-word">die Selbstbestimmung</div><div class="adj-meaning">özerklik, kendi kararını verme hakkı</div><div class="adj-example">Die Selbstbestimmung der Kinder wird eingeschränkt.</div></div>
+      <div class="adj-card" data-word="eigenverantwortung kişisel sorumluluk"><div class="adj-word">die Eigenverantwortung</div><div class="adj-meaning">kişisel sorumluluk</div><div class="adj-example">Eigenverantwortung wird durch zu viel Kontrolle untergraben.</div></div>
+      <div class="adj-card" data-word="lebensqualität yaşam kalitesi"><div class="adj-word">die Lebensqualität</div><div class="adj-meaning">yaşam kalitesi</div><div class="adj-example">Dies beeinträchtigt die Lebensqualität erheblich.</div></div>
+      <div class="adj-card" data-word="herausforderung zorluk meydan okuma"><div class="adj-word">die Herausforderung</div><div class="adj-meaning">zorluk, meydan okuma</div><div class="adj-example">Dies stellt eine große gesellschaftliche Herausforderung dar.</div></div>
+      <div class="adj-card" data-word="rahmenbedingung çerçeve koşul"><div class="adj-word">die Rahmenbedingung</div><div class="adj-meaning">çerçeve koşul, genel şart</div><div class="adj-example">Die Rahmenbedingungen müssen verbessert werden.</div></div>
+      <div class="adj-card" data-word="wechselwirkung karşılıklı etki ilişki"><div class="adj-word">die Wechselwirkung</div><div class="adj-meaning">karşılıklı etki, etkileşim</div><div class="adj-example">Es besteht eine enge Wechselwirkung zwischen Schule und Familie.</div></div>
+      <div class="adj-card" data-word="auswirkung etki sonuç"><div class="adj-word">die Auswirkung</div><div class="adj-meaning">etki, sonuç, yansıma</div><div class="adj-example">Die Auswirkungen auf die Gesellschaft sind tiefgreifend.</div></div>
+      <div class="adj-card" data-word="voraussetzung ön koşul gereklilik"><div class="adj-word">die Voraussetzung</div><div class="adj-meaning">ön koşul, gereklilik</div><div class="adj-example">Eine wichtige Voraussetzung ist die Zusammenarbeit aller Beteiligten.</div></div>
+      <div class="adj-card" data-word="schlussfolgerung sonuç çıkarım"><div class="adj-word">die Schlussfolgerung</div><div class="adj-meaning">sonuç, çıkarım</div><div class="adj-example">Die naheliegende Schlussfolgerung ist, dass Reformen nötig sind.</div></div>
+      <div class="adj-card" data-word="gesamtgesellschaft tüm toplum"><div class="adj-word">die Gesamtgesellschaft</div><div class="adj-meaning">tüm toplum, toplumun bütünü</div><div class="adj-example">Dies betrifft die Gesamtgesellschaft und nicht nur Einzelne.</div></div>
+      <div class="adj-card" data-word="zusammenhang bağlantı ilişki bağlam"><div class="adj-word">der Zusammenhang</div><div class="adj-meaning">bağlantı, bağlam, ilişki</div><div class="adj-example">In diesem Zusammenhang ist zu beachten, dass…</div></div>
+    </div>
+  </div>
+
+</div>`;
+  main.insertAdjacentHTML('beforeend', nomHTML);
+});
+</script>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function filterAdj(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#adjektiv .adj-card').forEach(card => {
+    const word = card.dataset.word || '';
+    const text = card.innerText.toLowerCase();
+    card.style.display = (text.includes(q) || word.includes(q)) ? '' : 'none';
+  });
+}
+
+function filterVerb(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#verben .adj-card').forEach(card => {
+    const word = card.dataset.word || '';
+    const text = card.innerText.toLowerCase();
+    card.style.display = (text.includes(q) || word.includes(q)) ? '' : 'none';
+  });
+}
+
+function filterNom(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#nominal .adj-card').forEach(card => {
+    const word = card.dataset.word || '';
+    const text = card.innerText.toLowerCase();
+    card.style.display = (text.includes(q) || word.includes(q)) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
